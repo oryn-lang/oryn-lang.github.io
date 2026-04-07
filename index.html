@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Oryn — a tiny language for game scripting</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"
+        />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap");
+
+            :root {
+                --bg: #f5f7f8;
+                --fg: #3a4349;
+                --dim: #62767f;
+                --faint: #a7b5bc;
+                --border: #d0d8dc;
+                --surface: #eaeff1;
+                --strong: #222829;
+                --link: #4f6069;
+                --link-hover: #333a3f;
+                --max-width: 660px;
+
+                --code-bg: #161b1d;
+                --code-text: #f1f3f3;
+                --code-dim: #67787c;
+                --code-punct: #9ca8ab;
+                --code-kw: #f1f3f3;
+                --code-ty: #f1f3f3;
+                --code-fn: #f1f3f3;
+                --code-str: #f1f3f3;
+                --code-num: #f1f3f3;
+                --code-bi: #f1f3f3;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html {
+                font-size: 15px;
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: "IBM Plex Mono", monospace;
+                background: var(--bg);
+                color: var(--fg);
+                line-height: 1.7;
+                padding: 0 1.5rem;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            ::selection {
+                background: #5eead4;
+                color: var(--code-bg);
+            }
+
+            .container {
+                max-width: var(--max-width);
+                margin: 0 auto;
+                padding: 4rem 0 6rem;
+            }
+
+            header {
+                margin-bottom: 4rem;
+            }
+
+            .star {
+                color: var(--faint);
+                font-size: 1rem;
+                display: inline-block;
+                margin-bottom: 1.5rem;
+            }
+
+            h1 {
+                font-family: "Space Mono", monospace;
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--strong);
+                margin-bottom: 0.4rem;
+                letter-spacing: -0.02em;
+            }
+
+            .tagline {
+                color: var(--dim);
+                font-size: 0.9rem;
+            }
+
+            nav {
+                margin-top: 2rem;
+                display: flex;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+            nav a {
+                color: var(--dim);
+                text-decoration: none;
+                font-size: 0.82rem;
+                transition: color 0.15s;
+            }
+            nav a:hover {
+                color: var(--strong);
+            }
+
+            section {
+                margin-bottom: 3.5rem;
+            }
+
+            h2 {
+                font-family: "Space Mono", monospace;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--faint);
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                margin-bottom: 1.2rem;
+            }
+
+            p {
+                margin-bottom: 1rem;
+                font-size: 0.88rem;
+            }
+
+            a {
+                color: var(--link);
+                text-decoration: none;
+                border-bottom: 1px solid var(--border);
+                transition:
+                    color 0.15s,
+                    border-color 0.15s;
+            }
+            a:hover {
+                color: var(--link-hover);
+                border-bottom-color: var(--link-hover);
+            }
+
+            pre {
+                background: var(--code-bg);
+                padding: 1.4rem 1.5rem;
+                overflow-x: auto;
+                font-size: 0.8rem;
+                line-height: 1.85;
+                margin-bottom: 1rem;
+                border-radius: 3px;
+            }
+
+            code {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.82rem;
+            }
+            pre code {
+                color: var(--code-text);
+            }
+
+            p code {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                padding: 0.12rem 0.35rem;
+                font-size: 0.82rem;
+                color: var(--strong);
+                border-radius: 2px;
+            }
+
+            .kw {
+                color: var(--code-kw);
+            }
+            .fn {
+                color: var(--code-fn);
+            }
+            .ty {
+                color: var(--code-ty);
+            }
+            .st {
+                color: var(--code-str);
+            }
+            .cm {
+                color: var(--code-dim);
+                font-style: italic;
+            }
+            .num {
+                color: var(--code-num);
+            }
+            .op {
+                color: var(--code-punct);
+            }
+            .id {
+                color: var(--code-text);
+            }
+            .bi {
+                color: var(--code-bi);
+            }
+
+            .features {
+                display: grid;
+                gap: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .feature {
+                padding-left: 1rem;
+                border-left: 2px solid var(--border);
+                transition: border-color 0.15s;
+            }
+            .feature:hover {
+                border-left-color: var(--dim);
+            }
+            .feature strong {
+                color: var(--strong);
+                font-size: 0.85rem;
+                display: block;
+                margin-bottom: 0.15rem;
+            }
+            .feature span {
+                color: var(--dim);
+                font-size: 0.82rem;
+            }
+
+            .tool-list {
+                font-size: 0.82rem;
+                color: var(--dim);
+                line-height: 2.2;
+            }
+            .tool-list .cmd {
+                color: var(--strong);
+                display: inline-block;
+                min-width: 220px;
+            }
+            .tool-list .soon {
+                color: var(--faint);
+                font-style: italic;
+            }
+
+            .note {
+                color: var(--dim);
+                font-size: 0.82rem;
+                font-style: italic;
+                margin-bottom: 1rem;
+            }
+
+            hr {
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 3.5rem 0;
+            }
+
+            footer {
+                margin-top: 4rem;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+                color: var(--faint);
+                font-size: 0.78rem;
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            footer a {
+                color: var(--faint);
+                border-bottom-color: transparent;
+            }
+            footer a:hover {
+                color: var(--dim);
+            }
+
+            @media (max-width: 520px) {
+                html {
+                    font-size: 14px;
+                }
+                h1 {
+                    font-size: 1.5rem;
+                }
+                .container {
+                    padding: 3rem 0 4rem;
+                }
+                nav {
+                    gap: 1rem;
+                }
+                .tool-list .cmd {
+                    min-width: 180px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="star">✦</div>
+                <h1>Oryn</h1>
+                <p class="tagline">A tiny language for game scripting.</p>
+                <nav>
+                    <a href="#synopsis">Synopsis</a>
+                    <a href="#example">Example</a>
+                    <a href="#features">Features</a>
+                    <a href="#toolchain">Toolchain</a>
+                    <a href="https://github.com/oryn-lang/oryn">GitHub ↗</a>
+                </nav>
+            </header>
+
+            <section id="synopsis">
+                <h2>Synopsis</h2>
+                <p>
+                    Oryn is an embeddable scripting language for games, mods,
+                    and interactive simulations. Statically typed. Garbage
+                    collected. Ships as a Rust library.
+                </p>
+                <p>
+                    Game entities compose behaviors with <code>use</code> and
+                    communicate through typed events. Scripts are synchronous.
+                    The host handles async. No null. No exceptions. No
+                    inheritance.
+                </p>
+            </section>
+
+            <section id="example">
+                <h2>What we're building toward</h2>
+                <pre><code><span class="cm">// torch.on</span>
+
+<span class="kw">event</span> <span class="ty">LightChanged</span> {
+    <span class="id">x</span>: <span class="ty">f32</span>
+    <span class="id">y</span>: <span class="ty">f32</span>
+    <span class="id">lit</span>: <span class="ty">bool</span>
+}
+
+<span class="kw">obj</span> <span class="ty">Torch</span> {
+    <span class="kw">use</span> <span class="ty">Position</span>
+
+    <span class="id">lit</span>: <span class="ty">bool</span>
+
+    <span class="kw">on</span> <span class="ty">Interact</span>(<span class="id">e</span>) {
+        <span class="bi">self</span>.<span class="id">lit</span> <span class="op">=</span> <span class="kw">not</span> <span class="bi">self</span>.<span class="id">lit</span>
+
+        <span class="kw">emit</span> <span class="ty">LightChanged</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span>, <span class="id">lit</span>: <span class="bi">self</span>.<span class="id">lit</span> }
+    }
+
+    <span class="kw">on</span> <span class="ty">Tick</span> {
+        <span class="kw">if</span> <span class="bi">self</span>.<span class="id">lit</span> {
+            <span class="kw">emit</span> <span class="ty">Light</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span>, <span class="id">radius</span>: <span class="num">4.0</span> }
+        }
+    }
+}</code></pre>
+            </section>
+
+            <section id="features">
+                <h2>Features</h2>
+                <div class="features">
+                    <div class="feature">
+                        <strong>Statically typed</strong>
+                        <span
+                            >Catch errors at compile time. No nil errors in
+                            front of players.</span
+                        >
+                    </div>
+                    <div class="feature">
+                        <strong>Composable</strong>
+                        <span
+                            >Small objects with focused behavior, assembled with
+                            <code>use</code>. No inheritance.</span
+                        >
+                    </div>
+                    <div class="feature">
+                        <strong>Typed events</strong>
+                        <span
+                            >Objects communicate through declared event types.
+                            Compiler-checked.</span
+                        >
+                    </div>
+                    <div class="feature">
+                        <strong>Embeddable</strong>
+                        <span
+                            >The runtime is a Rust library. Load scripts,
+                            broadcast events, drain responses.</span
+                        >
+                    </div>
+                    <div class="feature">
+                        <strong>Sandboxed</strong>
+                        <span
+                            >No filesystem. No network. Nothing the host doesn't
+                            expose.</span
+                        >
+                    </div>
+                    <div class="feature">
+                        <strong>Tooling from day one</strong>
+                        <span
+                            >LSP, tree-sitter, formatter, test runner. Editor
+                            support isn't an afterthought.</span
+                        >
+                    </div>
+                </div>
+            </section>
+
+            <hr />
+
+            <section id="toolchain">
+                <h2>Toolchain</h2>
+                <p>Single binary. Everything ships together.</p>
+                <div class="tool-list">
+                    <span class="cmd"><code>oryn run main.on</code></span> run a
+                    script<br />
+                    <span class="cmd"><code>oryn build</code></span>
+                    <span class="soon">planned</span><br />
+                    <span class="cmd"><code>oryn test</code></span>
+                    <span class="soon">planned</span><br />
+                    <span class="cmd"><code>oryn fmt</code></span>
+                    <span class="soon">planned</span><br />
+                    <span class="cmd"><code>oryn doc</code></span>
+                    <span class="soon">planned</span><br />
+                    <span class="cmd"
+                        ><code>oryn add &lt;git-url&gt;</code></span
+                    >
+                    <span class="soon">planned</span><br />
+                </div>
+            </section>
+
+            <footer>
+                <span>✦ Oryn</span>
+                <span>
+                    <a href="https://github.com/oryn-lang/oryn">GitHub</a>
+                </span>
+            </footer>
+        </div>
+    </body>
+</html>
