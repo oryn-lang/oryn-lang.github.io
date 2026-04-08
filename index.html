@@ -25,14 +25,14 @@
 
                 --code-bg: #161b1d;
                 --code-text: #f1f3f3;
-                --code-dim: #67787c;
-                --code-punct: #9ca8ab;
-                --code-kw: #f1f3f3;
-                --code-ty: #f1f3f3;
-                --code-fn: #f1f3f3;
-                --code-str: #f1f3f3;
-                --code-num: #f1f3f3;
-                --code-bi: #f1f3f3;
+                --code-dim: #616e88;
+                --code-punct: #d8dee9;
+                --code-kw: #81a1c1;
+                --code-ty: #88c0d0;
+                --code-fn: #d8dee9;
+                --code-str: #a3be8c;
+                --code-num: #b48ead;
+                --code-bi: #5e81ac;
             }
 
             * {
@@ -318,28 +318,47 @@
 
             <section id="example">
                 <h2>What we're building toward</h2>
-                <pre><code><span class="cm">// torch.on</span>
+                <pre><code><span class="cm">// guard.on</span>
 
-<span class="kw">event</span> <span class="ty">LightChanged</span> {
+<span class="kw">event</span> <span class="ty">Shout</span> {
     <span class="id">x</span>: <span class="ty">f32</span>
     <span class="id">y</span>: <span class="ty">f32</span>
-    <span class="id">lit</span>: <span class="ty">bool</span>
+    <span class="id">message</span>: <span class="ty">String</span>
 }
 
-<span class="kw">obj</span> <span class="ty">Torch</span> {
-    <span class="kw">use</span> <span class="ty">Position</span>
+<span class="kw">obj</span> <span class="ty">Health</span> {
+    <span class="id">hp</span>: <span class="ty">i32</span>
+    <span class="id">max_hp</span>: <span class="ty">i32</span>
 
-    <span class="id">lit</span>: <span class="ty">bool</span>
-
-    <span class="kw">on</span> <span class="ty">Interact</span>(<span class="id">e</span>) {
-        <span class="bi">self</span>.<span class="id">lit</span> <span class="op">=</span> <span class="kw">not</span> <span class="bi">self</span>.<span class="id">lit</span>
-
-        <span class="kw">emit</span> <span class="ty">LightChanged</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span>, <span class="id">lit</span>: <span class="bi">self</span>.<span class="id">lit</span> }
+    <span class="kw">fn</span> <span class="fn">is_alive</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">bool</span> {
+        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">hp</span> <span class="op">></span> <span class="num">0</span>
     }
 
-    <span class="kw">on</span> <span class="ty">Tick</span> {
-        <span class="kw">if</span> <span class="bi">self</span>.<span class="id">lit</span> {
-            <span class="kw">emit</span> <span class="ty">Light</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span>, <span class="id">radius</span>: <span class="num">4.0</span> }
+    <span class="kw">fn</span> <span class="fn">damage</span>(<span class="bi">self</span>, <span class="id">amount</span>: <span class="ty">i32</span>) {
+        <span class="bi">self</span>.<span class="id">hp</span> <span class="op">=</span> (<span class="bi">self</span>.<span class="id">hp</span> <span class="op">-</span> <span class="id">amount</span>).<span class="fn">max</span>(<span class="num">0</span>)
+    }
+}
+
+<span class="kw">obj</span> <span class="ty">Guard</span> {
+    <span class="kw">use</span> <span class="ty">Health</span>
+    <span class="kw">use</span> <span class="ty">Position</span>
+
+    <span class="id">name</span>: <span class="ty">String</span>
+    <span class="id">alert</span>: <span class="ty">bool</span>
+
+    <span class="kw">on</span> <span class="ty">PlayerSpotted</span>(<span class="id">e</span>: <span class="ty">PlayerSpotted</span>) {
+        <span class="bi">self</span>.<span class="id">alert</span> <span class="op">=</span> <span class="kw">true</span>
+
+        <span class="kw">emit</span> <span class="ty">Shout</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span>, <span class="id">message</span>: <span class="st">"{self.name}: Halt!"</span> }
+    }
+
+    <span class="kw">on</span> <span class="ty">TakeDamage</span>(<span class="id">e</span>: <span class="ty">TakeDamage</span>) {
+        <span class="bi">self</span>.<span class="fn">damage</span>(<span class="id">e</span>.<span class="id">amount</span>)
+
+        <span class="kw">if</span> <span class="kw">not</span> <span class="bi">self</span>.<span class="fn">is_alive</span>() {
+            <span class="kw">emit</span> <span class="ty">DropLoot</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span> }
+
+            <span class="bi">destroy</span>(<span class="bi">self</span>)
         }
     }
 }</code></pre>
