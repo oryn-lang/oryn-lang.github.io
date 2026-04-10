@@ -552,7 +552,7 @@
                     </tr>
                     <tr>
                         <td>coalesce</td>
-                        <td><code>??</code></td>
+                        <td><code>orelse</code></td>
                         <td>nil coalescing — loosest binary op</td>
                     </tr>
                 </table>
@@ -645,20 +645,20 @@
                 <p>
                     A <code>T?</code> value cannot be used where
                     <code>T</code> is expected — you must unwrap it first with
-                    <code>??</code>, <code>if let</code>, or an explicit nil
-                    check.
+                    <code>orelse</code>, <code>if let</code>, or an explicit
+                    nil check.
                 </p>
 
-                <h3>Nil coalescing — <code>??</code></h3>
+                <h3>Nil coalescing — <code>orelse</code></h3>
                 <p>
-                    <code>a ?? b</code> evaluates to <code>a</code> if it is not
-                    <code>nil</code>, otherwise <code>b</code>.
+                    <code>a orelse b</code> evaluates to <code>a</code> if it
+                    is not <code>nil</code>, otherwise <code>b</code>.
                     <code>a</code> must be <code>T?</code> and
                     <code>b</code> must be <code>T</code>. The result type is
                     <code>T</code>.
                 </p>
                 <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
-<span class="kw">let</span> <span class="id">y</span> <span class="op">=</span> <span class="id">x</span> <span class="op">??</span> <span class="num">0</span>     <span class="cm">// y is int, value is 0</span></code></pre>
+<span class="kw">let</span> <span class="id">y</span> <span class="op">=</span> <span class="id">x</span> <span class="kw">orelse</span> <span class="num">0</span>     <span class="cm">// y is int, value is 0</span></code></pre>
 
                 <h3>Unwrapping with <code>if let</code></h3>
                 <p>
