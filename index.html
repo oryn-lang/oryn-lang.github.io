@@ -22,17 +22,6 @@
                 --link: #4f6069;
                 --link-hover: #333a3f;
                 --max-width: 660px;
-
-                --code-bg: #161b1d;
-                --code-text: #f1f3f3;
-                --code-dim: #616e88;
-                --code-punct: #d8dee9;
-                --code-kw: #81a1c1;
-                --code-ty: #88c0d0;
-                --code-fn: #d8dee9;
-                --code-str: #a3be8c;
-                --code-num: #b48ead;
-                --code-bi: #5e81ac;
             }
 
             * {
@@ -294,7 +283,7 @@
                 <p class="tagline">A tiny language for game scripting.</p>
                 <nav>
                     <a href="#synopsis">Synopsis</a>
-                    <a href="#example">Example</a>
+                    <a href="#examples">Examples</a>
                     <a href="#features">Features</a>
                     <a href="#toolchain">Toolchain</a>
                     <a href="https://github.com/oryn-lang/oryn">GitHub ↗</a>
@@ -316,52 +305,69 @@
                 </p>
             </section>
 
-            <section id="example">
-                <h2>What we're building toward</h2>
-                <pre><code><span class="cm">// guard.on</span>
-
-<span class="kw">event</span> <span class="ty">Shout</span> {
-    <span class="id">x</span>: <span class="ty">f32</span>
-    <span class="id">y</span>: <span class="ty">f32</span>
-    <span class="id">message</span>: <span class="ty">String</span>
-}
-
-<span class="kw">obj</span> <span class="ty">Health</span> {
-    <span class="id">hp</span>: <span class="ty">i32</span>
-    <span class="id">max_hp</span>: <span class="ty">i32</span>
-
-    <span class="kw">fn</span> <span class="fn">is_alive</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">bool</span> {
-        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">hp</span> <span class="op">></span> <span class="num">0</span>
-    }
-
-    <span class="kw">fn</span> <span class="fn">damage</span>(<span class="bi">self</span>, <span class="id">amount</span>: <span class="ty">i32</span>) {
-        <span class="bi">self</span>.<span class="id">hp</span> <span class="op">=</span> (<span class="bi">self</span>.<span class="id">hp</span> <span class="op">-</span> <span class="id">amount</span>).<span class="fn">max</span>(<span class="num">0</span>)
-    }
-}
-
-<span class="kw">obj</span> <span class="ty">Guard</span> {
-    <span class="kw">use</span> <span class="ty">Health</span>
-    <span class="kw">use</span> <span class="ty">Position</span>
-
-    <span class="id">name</span>: <span class="ty">String</span>
-    <span class="id">alert</span>: <span class="ty">bool</span>
-
-    <span class="kw">on</span> <span class="ty">PlayerSpotted</span>(<span class="id">e</span>: <span class="ty">PlayerSpotted</span>) {
-        <span class="bi">self</span>.<span class="id">alert</span> <span class="op">=</span> <span class="kw">true</span>
-
-        <span class="kw">emit</span> <span class="ty">Shout</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span>, <span class="id">message</span>: <span class="st">"{self.name}: Halt!"</span> }
-    }
-
-    <span class="kw">on</span> <span class="ty">TakeDamage</span>(<span class="id">e</span>: <span class="ty">TakeDamage</span>) {
-        <span class="bi">self</span>.<span class="fn">damage</span>(<span class="id">e</span>.<span class="id">amount</span>)
-
-        <span class="kw">if</span> <span class="kw">not</span> <span class="bi">self</span>.<span class="fn">is_alive</span>() {
-            <span class="kw">emit</span> <span class="ty">DropLoot</span> { <span class="id">x</span>: <span class="bi">self</span>.<span class="id">x</span>, <span class="id">y</span>: <span class="bi">self</span>.<span class="id">y</span> }
-
-            <span class="bi">destroy</span>(<span class="bi">self</span>)
-        }
-    }
-}</code></pre>
+            <section id="examples">
+                <h2>Examples</h2>
+                <p>
+                    A short, commented tour of the language lives in the
+                    <a
+                        href="https://github.com/oryn-lang/oryn/tree/main/examples"
+                        ><code>examples/</code> directory</a
+                    >. Each file focuses on one feature and runs out of the box
+                    with <code>oryn examples/&lt;file&gt;.on</code>.
+                </p>
+                <div class="tool-list">
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/blob/main/examples/01_hello.on"
+                            ><code>01_hello.on</code></a
+                        ></span
+                    >
+                    variables, types, string interpolation<br />
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/blob/main/examples/02_functions.on"
+                            ><code>02_functions.on</code></a
+                        ></span
+                    >
+                    functions, return types, recursion<br />
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/blob/main/examples/03_control_flow.on"
+                            ><code>03_control_flow.on</code></a
+                        ></span
+                    >
+                    <code>if</code>, <code>while</code>, <code>for</code>,
+                    ranges<br />
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/blob/main/examples/04_objects.on"
+                            ><code>04_objects.on</code></a
+                        ></span
+                    >
+                    <code>obj</code> types, fields, methods, <code>self</code
+                    ><br />
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/blob/main/examples/05_composition.on"
+                            ><code>05_composition.on</code></a
+                        ></span
+                    >
+                    composition via <code>use</code><br />
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/blob/main/examples/06_private_fields.on"
+                            ><code>06_private_fields.on</code></a
+                        ></span
+                    >
+                    <code>pub</code> visibility, constructor pattern<br />
+                    <span class="cmd"
+                        ><a
+                            href="https://github.com/oryn-lang/oryn/tree/main/examples/modules"
+                            ><code>modules/</code></a
+                        ></span
+                    >
+                    multi-file project, imports across files<br />
+                </div>
             </section>
 
             <section id="features">
@@ -418,13 +424,17 @@
                 <h2>Toolchain</h2>
                 <p>Single binary. Everything ships together.</p>
                 <div class="tool-list">
-                    <span class="cmd"><code>oryn run main.on</code></span> run a
+                    <span class="cmd"><code>oryn run</code></span> run a
                     script<br />
-                    <span class="cmd"><code>oryn build</code></span>
-                    <span class="soon">planned</span><br />
-                    <span class="cmd"><code>oryn test</code></span>
-                    <span class="soon">planned</span><br />
+                    <span class="cmd"><code>oryn check</code></span>
+                    type-check without running<br />
                     <span class="cmd"><code>oryn fmt</code></span>
+                    format source files in place<br />
+                    <span class="cmd"><code>oryn disasm</code></span>
+                    print compiled bytecode<br />
+                    <span class="cmd"><code>oryn lsp</code></span> language
+                    server (stdio)<br />
+                    <span class="cmd"><code>oryn test</code></span>
                     <span class="soon">planned</span><br />
                     <span class="cmd"><code>oryn doc</code></span>
                     <span class="soon">planned</span><br />
