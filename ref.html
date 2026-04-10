@@ -1,0 +1,824 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Oryn — language reference</title>
+        <link
+            rel="icon"
+            href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"
+        />
+        <style>
+            @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap");
+
+            :root {
+                --bg: #f5f7f8;
+                --fg: #3a4349;
+                --dim: #62767f;
+                --faint: #a7b5bc;
+                --border: #d0d8dc;
+                --surface: #eaeff1;
+                --strong: #222829;
+                --link: #4f6069;
+                --link-hover: #333a3f;
+                --max-width: 720px;
+
+                --code-bg: #161b1d;
+                --code-text: #f1f3f3;
+                --code-dim: #616e88;
+                --code-punct: #d8dee9;
+                --code-kw: #81a1c1;
+                --code-ty: #88c0d0;
+                --code-fn: #d8dee9;
+                --code-str: #a3be8c;
+                --code-num: #b48ead;
+                --code-bi: #5e81ac;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            html {
+                font-size: 15px;
+                scroll-behavior: smooth;
+            }
+
+            body {
+                font-family: "IBM Plex Mono", monospace;
+                background: var(--bg);
+                color: var(--fg);
+                line-height: 1.7;
+                padding: 0 1.5rem;
+                -webkit-font-smoothing: antialiased;
+            }
+
+            ::selection {
+                background: #5eead4;
+                color: var(--code-bg);
+            }
+
+            .container {
+                max-width: var(--max-width);
+                margin: 0 auto;
+                padding: 4rem 0 6rem;
+            }
+
+            header {
+                margin-bottom: 3rem;
+            }
+
+            .star {
+                color: var(--faint);
+                font-size: 1rem;
+                display: inline-block;
+                margin-bottom: 1.5rem;
+            }
+
+            h1 {
+                font-family: "Space Mono", monospace;
+                font-size: 1.8rem;
+                font-weight: 700;
+                color: var(--strong);
+                margin-bottom: 0.4rem;
+                letter-spacing: -0.02em;
+            }
+
+            .tagline {
+                color: var(--dim);
+                font-size: 0.9rem;
+            }
+
+            nav {
+                margin-top: 2rem;
+                display: flex;
+                gap: 1.5rem;
+                flex-wrap: wrap;
+            }
+            nav a {
+                color: var(--dim);
+                text-decoration: none;
+                font-size: 0.82rem;
+                transition: color 0.15s;
+            }
+            nav a:hover {
+                color: var(--strong);
+            }
+            nav a.current {
+                color: var(--strong);
+            }
+
+            .toc {
+                margin-bottom: 3rem;
+                padding: 1rem 1.2rem;
+                background: var(--surface);
+                border-left: 2px solid var(--border);
+                font-size: 0.8rem;
+                line-height: 1.9;
+            }
+            .toc strong {
+                display: block;
+                color: var(--strong);
+                font-family: "Space Mono", monospace;
+                font-size: 0.7rem;
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                margin-bottom: 0.6rem;
+                color: var(--faint);
+            }
+            .toc a {
+                color: var(--dim);
+                text-decoration: none;
+                border-bottom: none;
+                margin-right: 1.1rem;
+                display: inline-block;
+            }
+            .toc a:hover {
+                color: var(--strong);
+            }
+
+            section {
+                margin-bottom: 3rem;
+                scroll-margin-top: 1rem;
+            }
+
+            h2 {
+                font-family: "Space Mono", monospace;
+                font-size: 0.75rem;
+                font-weight: 700;
+                color: var(--faint);
+                text-transform: uppercase;
+                letter-spacing: 0.12em;
+                margin-bottom: 1rem;
+            }
+
+            h3 {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.88rem;
+                font-weight: 600;
+                color: var(--strong);
+                margin-top: 1.5rem;
+                margin-bottom: 0.6rem;
+            }
+
+            p {
+                margin-bottom: 1rem;
+                font-size: 0.88rem;
+            }
+
+            a {
+                color: var(--link);
+                text-decoration: none;
+                border-bottom: 1px solid var(--border);
+                transition:
+                    color 0.15s,
+                    border-color 0.15s;
+            }
+            a:hover {
+                color: var(--link-hover);
+                border-bottom-color: var(--link-hover);
+            }
+
+            pre {
+                background: var(--code-bg);
+                padding: 1.2rem 1.3rem;
+                overflow-x: auto;
+                font-size: 0.8rem;
+                line-height: 1.75;
+                margin-bottom: 1rem;
+                border-radius: 3px;
+            }
+
+            code {
+                font-family: "IBM Plex Mono", monospace;
+                font-size: 0.82rem;
+            }
+            pre code {
+                color: var(--code-text);
+            }
+
+            p code,
+            li code,
+            td code {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                padding: 0.12rem 0.35rem;
+                font-size: 0.8rem;
+                color: var(--strong);
+                border-radius: 2px;
+            }
+
+            .kw {
+                color: var(--code-kw);
+            }
+            .fn {
+                color: var(--code-fn);
+            }
+            .ty {
+                color: var(--code-ty);
+            }
+            .st {
+                color: var(--code-str);
+            }
+            .cm {
+                color: var(--code-dim);
+                font-style: italic;
+            }
+            .num {
+                color: var(--code-num);
+            }
+            .op {
+                color: var(--code-punct);
+            }
+            .id {
+                color: var(--code-text);
+            }
+            .bi {
+                color: var(--code-bi);
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.82rem;
+                margin-bottom: 1rem;
+            }
+            th,
+            td {
+                text-align: left;
+                padding: 0.35rem 0.6rem;
+                border-bottom: 1px solid var(--border);
+                vertical-align: top;
+            }
+            th {
+                font-weight: 600;
+                color: var(--strong);
+                font-size: 0.78rem;
+            }
+            td:first-child {
+                white-space: nowrap;
+                color: var(--strong);
+            }
+
+            ul {
+                list-style: none;
+                margin-bottom: 1rem;
+                padding-left: 0;
+            }
+            ul li {
+                font-size: 0.85rem;
+                padding-left: 1rem;
+                border-left: 2px solid var(--border);
+                margin-bottom: 0.35rem;
+            }
+
+            .note {
+                color: var(--dim);
+                font-size: 0.82rem;
+                font-style: italic;
+                margin-bottom: 1rem;
+            }
+
+            hr {
+                border: none;
+                border-top: 1px solid var(--border);
+                margin: 3rem 0;
+            }
+
+            footer {
+                margin-top: 4rem;
+                padding-top: 2rem;
+                border-top: 1px solid var(--border);
+                color: var(--faint);
+                font-size: 0.78rem;
+                display: flex;
+                justify-content: space-between;
+                flex-wrap: wrap;
+                gap: 1rem;
+            }
+            footer a {
+                color: var(--faint);
+                border-bottom-color: transparent;
+            }
+            footer a:hover {
+                color: var(--dim);
+            }
+
+            @media (max-width: 520px) {
+                html {
+                    font-size: 14px;
+                }
+                h1 {
+                    font-size: 1.5rem;
+                }
+                .container {
+                    padding: 3rem 0 4rem;
+                }
+                nav {
+                    gap: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <div class="star">✦</div>
+                <h1>Oryn — reference</h1>
+                <p class="tagline">
+                    A single-page tour of the current language and syntax.
+                </p>
+                <nav>
+                    <a href="index.html">Home</a>
+                    <a
+                        href="https://github.com/oryn-lang/oryn/tree/main/examples"
+                        >Examples ↗</a
+                    >
+                    <a class="current" href="ref.html">Reference</a>
+                    <a href="https://github.com/oryn-lang/oryn">GitHub ↗</a>
+                </nav>
+            </header>
+
+            <div class="toc">
+                <strong>On this page</strong>
+                <a href="#hello">Hello</a>
+                <a href="#comments">Comments</a>
+                <a href="#primitives">Primitives</a>
+                <a href="#bindings">Bindings</a>
+                <a href="#strings">Strings</a>
+                <a href="#operators">Operators</a>
+                <a href="#control-flow">Control flow</a>
+                <a href="#functions">Functions</a>
+                <a href="#objects">Objects</a>
+                <a href="#composition">Composition</a>
+                <a href="#visibility">Visibility</a>
+                <a href="#modules">Modules</a>
+                <a href="#keywords">Keywords</a>
+                <a href="#builtins">Builtins</a>
+            </div>
+
+            <section id="hello">
+                <h2>Hello</h2>
+                <p>
+                    The smallest useful program. Save as
+                    <code>hello.on</code> and run with
+                    <code>oryn hello.on</code>.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">name</span> <span class="op">=</span> <span class="st">"Oryn"</span>
+<span class="fn">print</span>(<span class="st">"hello from {name}"</span>)</code></pre>
+                <p>
+                    Running any <code>.on</code> file requires a
+                    <code>package.on</code> marker somewhere in an ancestor
+                    directory — an empty file telling the compiler "this is a
+                    project root". See <a href="#modules">Modules</a>.
+                </p>
+            </section>
+
+            <section id="comments">
+                <h2>Comments</h2>
+                <p>Line comments only. Block comments aren't supported.</p>
+                <pre><code><span class="cm">// a single-line comment</span>
+<span class="kw">let</span> <span class="id">x</span> <span class="op">=</span> <span class="num">1</span> <span class="cm">// trailing comment</span></code></pre>
+            </section>
+
+            <section id="primitives">
+                <h2>Primitive types</h2>
+                <p>
+                    Four built-in value types plus <code>Range</code>. The type
+                    names as they appear in annotations:
+                </p>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Literal</th>
+                    </tr>
+                    <tr>
+                        <td><code>i32</code></td>
+                        <td>32-bit signed integer</td>
+                        <td><code>0</code>, <code>42</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>f32</code></td>
+                        <td>32-bit float</td>
+                        <td><code>3.14</code>, <code>0.5</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>bool</code></td>
+                        <td>boolean</td>
+                        <td><code>true</code>, <code>false</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>String</code></td>
+                        <td>UTF-8 string</td>
+                        <td><code>"hi"</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>Range</code></td>
+                        <td>integer range iterator</td>
+                        <td><code>0..5</code>, <code>0..=5</code></td>
+                    </tr>
+                </table>
+                <p>
+                    Integer literals are digits only. Float literals must have
+                    digits on both sides of the dot —
+                    <code>.5</code> and <code>5.</code> are not valid. There's
+                    no hex, octal, binary, scientific notation, digit separator,
+                    or modulo operator. Negative numbers are the unary minus
+                    operator applied to a positive literal:
+                    <code>-5</code> parses as <code>-(5)</code>.
+                </p>
+            </section>
+
+            <section id="bindings">
+                <h2>Bindings</h2>
+                <p>
+                    <code>let</code> is mutable, <code>val</code> is immutable.
+                    Both can optionally carry a type annotation; otherwise the
+                    type is inferred from the right-hand side.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">count</span> <span class="op">=</span> <span class="num">0</span>         <span class="cm">// mutable, inferred as i32</span>
+<span class="id">count</span> <span class="op">=</span> <span class="id">count</span> <span class="op">+</span> <span class="num">1</span>  <span class="cm">// ok</span>
+
+<span class="kw">val</span> <span class="id">pi</span>: <span class="ty">f32</span> <span class="op">=</span> <span class="num">3.14</span>  <span class="cm">// immutable, annotated</span>
+<span class="cm">// pi = 2.71          // error: cannot reassign val binding</span></code></pre>
+                <p>
+                    Reassignment goes through the same
+                    <code>=</code> operator — there's no separate
+                    <code>:=</code>. Types are checked on every reassignment, so
+                    a <code>let</code> declared as <code>i32</code> can't later
+                    be set to a <code>String</code>.
+                </p>
+            </section>
+
+            <section id="strings">
+                <h2>Strings</h2>
+                <p>
+                    Double-quoted string literals with inline interpolation. Any
+                    <code>{ }</code> pair inside a string is evaluated as an
+                    Oryn expression and stringified.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">name</span> <span class="op">=</span> <span class="st">"world"</span>
+<span class="fn">print</span>(<span class="st">"hello, {name}"</span>)
+<span class="fn">print</span>(<span class="st">"1 + 1 = {1 + 1}"</span>)</code></pre>
+                <p>Supported escape sequences:</p>
+                <ul>
+                    <li><code>\\</code> — a literal backslash</li>
+                    <li>
+                        <code>\{</code> — a literal <code>{</code>
+                        (skips interpolation)
+                    </li>
+                    <li><code>\}</code> — a literal <code>}</code></li>
+                </ul>
+                <p class="note">
+                    Unknown escapes (like <code>\n</code> or <code>\t</code>)
+                    are preserved verbatim — the backslash and the next
+                    character both end up in the string.
+                </p>
+            </section>
+
+            <section id="operators">
+                <h2>Operators</h2>
+                <p>
+                    Arithmetic, comparison, logical, and ranges. Listed from
+                    tightest binding to loosest — expressions group accordingly
+                    without parentheses.
+                </p>
+                <table>
+                    <tr>
+                        <th>Level</th>
+                        <th>Operators</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td>postfix</td>
+                        <td>
+                            <code>.field</code>, <code>.method()</code>,
+                            <code>Type { }</code>
+                        </td>
+                        <td>left-associative</td>
+                    </tr>
+                    <tr>
+                        <td>unary</td>
+                        <td><code>-x</code></td>
+                        <td>negation</td>
+                    </tr>
+                    <tr>
+                        <td>product</td>
+                        <td><code>*</code>, <code>/</code></td>
+                        <td>no <code>%</code> modulo</td>
+                    </tr>
+                    <tr>
+                        <td>sum</td>
+                        <td><code>+</code>, <code>-</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>range</td>
+                        <td><code>..</code>, <code>..=</code></td>
+                        <td>exclusive / inclusive</td>
+                    </tr>
+                    <tr>
+                        <td>comparison</td>
+                        <td>
+                            <code>==</code> <code>!=</code> <code>&lt;</code>
+                            <code>&gt;</code> <code>&lt;=</code>
+                            <code>&gt;=</code>
+                        </td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>not</td>
+                        <td><code>not x</code></td>
+                        <td>prefix, word keyword</td>
+                    </tr>
+                    <tr>
+                        <td>and</td>
+                        <td><code>and</code></td>
+                        <td>short-circuit</td>
+                    </tr>
+                    <tr>
+                        <td>or</td>
+                        <td><code>or</code></td>
+                        <td>short-circuit</td>
+                    </tr>
+                </table>
+                <p>
+                    There are no bitwise operators, no compound assignment
+                    (<code>+=</code>, <code>-=</code>, …), and no
+                    <code>&amp;&amp;</code> / <code>||</code> / <code>!</code> —
+                    the logical operators are always spelled <code>and</code> /
+                    <code>or</code> / <code>not</code>.
+                </p>
+            </section>
+
+            <section id="control-flow">
+                <h2>Control flow</h2>
+                <p>
+                    <code>if</code> / <code>elif</code> / <code>else</code> with
+                    required braces, <code>while</code>, and
+                    <code>for … in</code> over ranges. Branches and loop bodies
+                    are always blocks — no single-statement sugar.
+                </p>
+                <pre><code><span class="kw">if</span> <span class="id">grade</span> <span class="op">>=</span> <span class="num">90</span> {
+    <span class="fn">print</span>(<span class="st">"A"</span>)
+} <span class="kw">elif</span> <span class="id">grade</span> <span class="op">>=</span> <span class="num">80</span> {
+    <span class="fn">print</span>(<span class="st">"B"</span>)
+} <span class="kw">else</span> {
+    <span class="fn">print</span>(<span class="st">"C"</span>)
+}</code></pre>
+                <pre><code><span class="kw">while</span> <span class="id">count</span> <span class="op">></span> <span class="num">0</span> {
+    <span class="fn">print</span>(<span class="st">"{count}"</span>)
+    <span class="id">count</span> <span class="op">=</span> <span class="id">count</span> <span class="op">-</span> <span class="num">1</span>
+}</code></pre>
+                <pre><code><span class="kw">for</span> <span class="id">n</span> <span class="kw">in</span> <span class="num">1</span><span class="op">..=</span><span class="num">3</span> {
+    <span class="fn">print</span>(<span class="st">"{n}"</span>)
+}
+
+<span class="kw">for</span> <span class="id">n</span> <span class="kw">in</span> <span class="num">0</span><span class="op">..</span><span class="num">10</span> {
+    <span class="kw">if</span> <span class="id">n</span> <span class="op">==</span> <span class="num">3</span> { <span class="kw">continue</span> }
+    <span class="kw">if</span> <span class="id">n</span> <span class="op">==</span> <span class="num">6</span> { <span class="kw">break</span> }
+    <span class="fn">print</span>(<span class="st">"{n}"</span>)
+}</code></pre>
+                <p>
+                    <code>elif</code> desugars to <code>else { if … }</code>.
+                    There is no <code>match</code>, no ternary, no do-while, and
+                    no labels on loops.
+                </p>
+                <p class="note">
+                    Blocks are not expressions in the value sense —
+                    <code>let x = { 1 + 2 }</code> does not set
+                    <code>x</code> to <code>3</code>. Use
+                    <code>let x = 1 + 2</code> or call a function.
+                </p>
+            </section>
+
+            <section id="functions">
+                <h2>Functions</h2>
+                <p>
+                    Declared with <code>fn</code>. Every parameter requires an
+                    explicit type annotation. Return types are optional — omit
+                    the <code>-&gt;</code> clause for void functions.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">add</span>(<span class="id">a</span>: <span class="ty">i32</span>, <span class="id">b</span>: <span class="ty">i32</span>) <span class="op">-></span> <span class="ty">i32</span> {
+    <span class="kw">rn</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
+}
+
+<span class="kw">fn</span> <span class="fn">greet</span>(<span class="id">name</span>: <span class="ty">String</span>) {
+    <span class="fn">print</span>(<span class="st">"hi {name}"</span>)
+}
+
+<span class="kw">fn</span> <span class="fn">factorial</span>(<span class="id">n</span>: <span class="ty">i32</span>) <span class="op">-></span> <span class="ty">i32</span> {
+    <span class="kw">if</span> <span class="id">n</span> <span class="op"><=</span> <span class="num">1</span> {
+        <span class="kw">rn</span> <span class="num">1</span>
+    }
+    <span class="kw">rn</span> <span class="id">n</span> <span class="op">*</span> <span class="fn">factorial</span>(<span class="id">n</span> <span class="op">-</span> <span class="num">1</span>)
+}</code></pre>
+                <p>
+                    <code>rn</code> is how you return a value. Function bodies
+                    don't implicitly return their last expression — a function
+                    that ends without <code>rn</code> returns <code>void</code>.
+                </p>
+            </section>
+
+            <section id="objects">
+                <h2>Objects</h2>
+                <p>
+                    <code>obj</code> is the struct-with-methods type. Fields are
+                    name-typed; methods are declared inside the body. A first
+                    parameter named <code>self</code> makes the method an
+                    instance method; otherwise it's a static method called via
+                    <code>TypeName.method(…)</code>.
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Point</span> {
+    <span class="id">x</span>: <span class="ty">f32</span>
+    <span class="id">y</span>: <span class="ty">f32</span>
+
+    <span class="kw">fn</span> <span class="fn">length_sq</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">f32</span> {
+        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">+</span> <span class="bi">self</span>.<span class="id">y</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">y</span>
+    }
+
+    <span class="kw">fn</span> <span class="fn">zero</span>() <span class="op">-></span> <span class="ty">Point</span> {
+        <span class="kw">rn</span> <span class="ty">Point</span> { <span class="id">x</span>: <span class="num">0.0</span>, <span class="id">y</span>: <span class="num">0.0</span> }
+    }
+}
+
+<span class="kw">let</span> <span class="id">p</span> <span class="op">=</span> <span class="ty">Point</span> { <span class="id">x</span>: <span class="num">3.0</span>, <span class="id">y</span>: <span class="num">4.0</span> }
+<span class="fn">print</span>(<span class="id">p</span>.<span class="fn">length_sq</span>())     <span class="cm">// 25.0</span>
+
+<span class="kw">let</span> <span class="id">origin</span> <span class="op">=</span> <span class="ty">Point</span>.<span class="fn">zero</span>()
+<span class="id">p</span>.<span class="id">x</span> <span class="op">=</span> <span class="num">10.0</span>                <span class="cm">// fields are assignable</span></code></pre>
+                <p>
+                    Object literals use <code>Type { field: value, … }</code>.
+                    Every field must be supplied by name — there's no positional
+                    construction. Trailing commas are allowed.
+                </p>
+            </section>
+
+            <section id="composition">
+                <h2>Composition with <code>use</code></h2>
+                <p>
+                    Oryn has no inheritance. Instead, <code>use</code>
+                    pulls every field and method from another
+                    <code>obj</code> directly into the current one. Instances of
+                    the composing type carry those fields inline and can call
+                    those methods on themselves.
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Counter</span> {
+    <span class="id">count</span>: <span class="ty">i32</span>
+
+    <span class="kw">fn</span> <span class="fn">bump</span>(<span class="bi">self</span>) {
+        <span class="bi">self</span>.<span class="id">count</span> <span class="op">=</span> <span class="bi">self</span>.<span class="id">count</span> <span class="op">+</span> <span class="num">1</span>
+    }
+}
+
+<span class="kw">obj</span> <span class="ty">Score</span> {
+    <span class="kw">use</span> <span class="ty">Counter</span>
+    <span class="id">label</span>: <span class="ty">String</span>
+
+    <span class="kw">fn</span> <span class="fn">new</span>(<span class="id">label</span>: <span class="ty">String</span>) <span class="op">-></span> <span class="ty">Score</span> {
+        <span class="kw">rn</span> <span class="ty">Score</span> { <span class="id">count</span>: <span class="num">0</span>, <span class="id">label</span>: <span class="id">label</span> }
+    }
+}
+
+<span class="kw">let</span> <span class="id">s</span> <span class="op">=</span> <span class="ty">Score</span>.<span class="fn">new</span>(<span class="st">"points"</span>)
+<span class="id">s</span>.<span class="fn">bump</span>()                      <span class="cm">// inherited from Counter</span>
+<span class="fn">print</span>(<span class="st">"{s.label}: {s.count}"</span>)</code></pre>
+                <p>
+                    <code>use</code> takes a single type name or a qualified
+                    path (<code>use math.shapes.Polygon</code>). Composed fields
+                    become part of every <code>Score</code> literal.
+                </p>
+            </section>
+
+            <section id="visibility">
+                <h2>Visibility</h2>
+                <p>
+                    Everything is private by default. The
+                    <code>pub</code> modifier opens a declaration up to other
+                    modules. It can be applied to:
+                </p>
+                <ul>
+                    <li>
+                        <code>pub let</code> / <code>pub val</code> — top-level
+                        constants in a module
+                    </li>
+                    <li><code>pub fn</code> — top-level functions</li>
+                    <li><code>pub obj</code> — type definitions</li>
+                    <li>
+                        <code>pub</code> on a field inside an <code>obj</code> —
+                        read/write from outside the module
+                    </li>
+                    <li>
+                        <code>pub fn</code> inside an <code>obj</code> —
+                        callable from outside the module
+                    </li>
+                </ul>
+                <p>
+                    Visibility only bites at module boundaries. Inside a single
+                    file, everything can see everything regardless of
+                    <code>pub</code>.
+                </p>
+                <pre><code><span class="kw">pub</span> <span class="kw">obj</span> <span class="ty">Color</span> {
+    <span class="kw">pub</span> <span class="id">r</span>: <span class="ty">i32</span>
+    <span class="kw">pub</span> <span class="id">g</span>: <span class="ty">i32</span>
+    <span class="kw">pub</span> <span class="id">b</span>: <span class="ty">i32</span>
+    <span class="id">alpha</span>: <span class="ty">i32</span>              <span class="cm">// private — outsiders can't touch it</span>
+
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">rgb</span>(<span class="id">r</span>: <span class="ty">i32</span>, <span class="id">g</span>: <span class="ty">i32</span>, <span class="id">b</span>: <span class="ty">i32</span>) <span class="op">-></span> <span class="ty">Color</span> {
+        <span class="kw">rn</span> <span class="ty">Color</span> { <span class="id">r</span>: <span class="id">r</span>, <span class="id">g</span>: <span class="id">g</span>, <span class="id">b</span>: <span class="id">b</span>, <span class="id">alpha</span>: <span class="num">255</span> }
+    }
+}</code></pre>
+            </section>
+
+            <section id="modules">
+                <h2>Modules</h2>
+                <p>
+                    A project root is any directory containing an empty
+                    <code>package.on</code> file. Every other
+                    <code>.on</code> file in that tree is a module, addressed by
+                    its path relative to the root with slashes replaced by dots
+                    and the <code>.on</code> extension dropped.
+                </p>
+                <pre><code><span class="cm">project/</span>
+<span class="cm">├── package.on         // empty marker</span>
+<span class="cm">├── main.on            // entry point</span>
+<span class="cm">├── physics.on         // `import physics`</span>
+<span class="cm">└── math/</span>
+<span class="cm">    └── vec2.on        // `import math.vec2`</span></code></pre>
+                <p>
+                    Imports are non-transitive — each file lists what it uses
+                    directly. Imported names are always qualified at the call
+                    site.
+                </p>
+                <pre><code><span class="cm">// main.on</span>
+<span class="kw">import</span> <span class="id">math</span>.<span class="id">vec2</span>
+<span class="kw">import</span> <span class="id">physics</span>
+
+<span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="ty">math</span>.<span class="ty">vec2</span>.<span class="ty">Vec2</span> { <span class="id">x</span>: <span class="num">3.0</span>, <span class="id">y</span>: <span class="num">4.0</span> }
+<span class="fn">print</span>(<span class="id">physics</span>.<span class="fn">fall_distance</span>(<span class="num">1.5</span>))</code></pre>
+                <p>
+                    Module files contain only declarations —
+                    <code>import</code>, <code>pub val</code>,
+                    <code>pub fn</code>, and <code>pub obj</code>. They don't
+                    run top-level code; an importer that needs one of their
+                    declarations pulls it in at compile time.
+                    <code>pub val</code> and <code>pub let</code> at the top of
+                    a module must be literal values (they become compile-time
+                    constants).
+                </p>
+            </section>
+
+            <section id="keywords">
+                <h2>Keywords</h2>
+                <p>
+                    Every reserved word in the language today. None of these can
+                    be used as an identifier.
+                </p>
+                <pre><code><span class="kw">and    break   continue  elif    else</span>
+<span class="kw">false  fn      for       if      import</span>
+<span class="kw">in     let     not       obj     or</span>
+<span class="kw">pub    rn      true      use     val</span>
+<span class="kw">while</span></code></pre>
+            </section>
+
+            <section id="builtins">
+                <h2>Builtins</h2>
+                <p>The runtime ships exactly one builtin function:</p>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Signature</th>
+                        <th>Effect</th>
+                    </tr>
+                    <tr>
+                        <td><code>print</code></td>
+                        <td>
+                            <code>print(values…)</code>
+                        </td>
+                        <td>
+                            Writes each value to stdout separated by
+                            <code>", "</code>, then a newline.
+                        </td>
+                    </tr>
+                </table>
+                <p>
+                    Every other function you call comes from your own code or
+                    from a module you imported. There is no standard library
+                    yet.
+                </p>
+            </section>
+
+            <hr />
+
+            <footer>
+                <span>✦ Oryn</span>
+                <span>
+                    <a href="https://github.com/oryn-lang/oryn">GitHub</a>
+                </span>
+            </footer>
+        </div>
+    </body>
+</html>
