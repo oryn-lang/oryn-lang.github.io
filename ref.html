@@ -570,8 +570,9 @@
             <section id="control-flow">
                 <h2>Control flow</h2>
                 <p>
-                    <code>if</code> / <code>elif</code> / <code>else</code> with
-                    required braces, <code>while</code>, and
+                    <code>if</code> / <code>unless</code> /
+                    <code>elif</code> / <code>else</code> with required
+                    braces, <code>while</code>, and
                     <code>for … in</code> over ranges. Branches and loop bodies
                     are always blocks — no single-statement sugar.
                 </p>
@@ -581,6 +582,11 @@
     <span class="fn">print</span>(<span class="st">"B"</span>)
 } <span class="kw">else</span> {
     <span class="fn">print</span>(<span class="st">"C"</span>)
+}</code></pre>
+                <pre><code><span class="kw">unless</span> <span class="id">debug</span> {
+    <span class="fn">print</span>(<span class="st">"debug logging is off"</span>)
+} <span class="kw">else</span> {
+    <span class="fn">print</span>(<span class="st">"debug logging is on"</span>)
 }</code></pre>
                 <pre><code><span class="kw">while</span> <span class="id">count</span> <span class="op">></span> <span class="num">0</span> {
     <span class="fn">print</span>(<span class="st">"{count}"</span>)
@@ -597,8 +603,10 @@
 }</code></pre>
                 <p>
                     <code>elif</code> desugars to <code>else { if … }</code>.
-                    There is no <code>match</code>, no ternary, no do-while, and
-                    no labels on loops.
+                    <code>unless</code> is the inverse of
+                    <code>if</code>: its body runs when the condition is
+                    false. There is no <code>match</code>, no ternary, no
+                    do-while, and no labels on loops.
                 </p>
                 <p class="note">
                     Blocks are not expressions in the value sense —
@@ -936,7 +944,7 @@
 <span class="kw">false  fn      for       if      import</span>
 <span class="kw">in     let     nil       not     obj</span>
 <span class="kw">or     pub     rn        true    try</span>
-<span class="kw">use    val     while</span></code></pre>
+<span class="kw">unless use     val       while</span></code></pre>
             </section>
 
             <section id="builtins">
