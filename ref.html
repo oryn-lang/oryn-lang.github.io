@@ -350,6 +350,7 @@
                 <a href="#strings">Strings</a>
                 <a href="#operators">Operators</a>
                 <a href="#control-flow">Control flow</a>
+                <a href="#nil-handling">Nil &amp; errors</a>
                 <a href="#functions">Functions</a>
                 <a href="#objects">Objects</a>
                 <a href="#composition">Composition</a>
@@ -535,6 +536,11 @@
                         <td>prefix, word keyword</td>
                     </tr>
                     <tr>
+                        <td>prefix</td>
+                        <td><code>try x</code>, <code>!x</code></td>
+                        <td>error propagation / unwrap-or-trap</td>
+                    </tr>
+                    <tr>
                         <td>and</td>
                         <td><code>and</code></td>
                         <td>short-circuit</td>
@@ -544,13 +550,20 @@
                         <td><code>or</code></td>
                         <td>short-circuit</td>
                     </tr>
+                    <tr>
+                        <td>coalesce</td>
+                        <td><code>??</code></td>
+                        <td>nil coalescing — loosest binary op</td>
+                    </tr>
                 </table>
                 <p>
                     There are no bitwise operators, no compound assignment
                     (<code>+=</code>, <code>-=</code>, …), and no
-                    <code>&amp;&amp;</code> / <code>||</code> / <code>!</code> —
-                    the logical operators are always spelled <code>and</code> /
-                    <code>or</code> / <code>not</code>.
+                    <code>&amp;&amp;</code> / <code>||</code> — the logical
+                    operators are always spelled <code>and</code> /
+                    <code>or</code> / <code>not</code>. The
+                    <code>!</code> symbol is used as the error-unwrap prefix
+                    operator and in <code>!T</code> error union type syntax.
                 </p>
             </section>
 
@@ -593,6 +606,148 @@
                     <code>x</code> to <code>3</code>. Use
                     <code>let x = 1 + 2</code> or call a function.
                 </p>
+
+                <h3><code>if let</code></h3>
+                <p>
+                    <code>if let</code> unwraps a nillable value into a
+                    branch-scoped binding. See
+                    <a href="#nil-handling">Nil &amp; errors</a> for details.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">maybe</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">42</span>
+<span class="kw">if</span> <span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="id">maybe</span> {
+    <span class="fn">print</span>(<span class="id">v</span>)
+}</code></pre>
+            </section>
+
+            <section id="nil-handling">
+                <h2>Nil &amp; errors</h2>
+                <p>
+                    Oryn has first-class support for absent values and explicit
+                    error handling. <code>T?</code> is a nillable type — a value
+                    that might be <code>nil</code>. <code>!T</code> is an error
+                    union — a value that is either <code>T</code> or an error.
+                </p>
+
+                <h3>Nillable types</h3>
+                <p>
+                    Append <code>?</code> to any type to make it nillable.
+                    <code>nil</code> is assignable to any <code>T?</code>, and a
+                    plain <code>T</code> value is also assignable to
+                    <code>T?</code> (value promotion).
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">score</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">42</span>
+<span class="kw">let</span> <span class="id">empty</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
+
+<span class="kw">fn</span> <span class="fn">maybe_name</span>(<span class="id">id</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">String</span><span class="op">?</span> {
+    <span class="kw">if</span> <span class="id">id</span> <span class="op">==</span> <span class="num">1</span> { <span class="kw">rn</span> <span class="st">"Alice"</span> }
+    <span class="kw">rn</span> <span class="kw">nil</span>
+}</code></pre>
+                <p>
+                    A <code>T?</code> value cannot be used where
+                    <code>T</code> is expected — you must unwrap it first with
+                    <code>??</code>, <code>if let</code>, or an explicit nil
+                    check.
+                </p>
+
+                <h3>Nil coalescing — <code>??</code></h3>
+                <p>
+                    <code>a ?? b</code> evaluates to <code>a</code> if it is not
+                    <code>nil</code>, otherwise <code>b</code>.
+                    <code>a</code> must be <code>T?</code> and
+                    <code>b</code> must be <code>T</code>. The result type is
+                    <code>T</code>.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
+<span class="kw">let</span> <span class="id">y</span> <span class="op">=</span> <span class="id">x</span> <span class="op">??</span> <span class="num">0</span>     <span class="cm">// y is int, value is 0</span></code></pre>
+
+                <h3>Unwrapping with <code>if let</code></h3>
+                <p>
+                    <code>if let</code> tests a <code>T?</code> and, when it is
+                    not nil, binds the unwrapped value to a new name scoped to
+                    the then-branch.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">maybe</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">7</span>
+
+<span class="kw">if</span> <span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="id">maybe</span> {
+    <span class="fn">print</span>(<span class="st">"got {v}"</span>)   <span class="cm">// v is int, not int?</span>
+} <span class="kw">else</span> {
+    <span class="fn">print</span>(<span class="st">"nothing"</span>)
+}</code></pre>
+                <p>
+                    The <code>else</code> branch is optional. The original
+                    variable is not narrowed — only the new binding
+                    <code>v</code> has the unwrapped type.
+                </p>
+
+                <h3>Nil equality</h3>
+                <p>
+                    <code>== nil</code> and <code>!= nil</code> work on any
+                    <code>T?</code> value. Comparing two non-nil values still
+                    requires them to be the same type.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">5</span>
+<span class="fn">print</span>(<span class="id">x</span> <span class="op">==</span> <span class="kw">nil</span>)   <span class="cm">// false</span>
+<span class="fn">print</span>(<span class="id">x</span> <span class="op">!=</span> <span class="kw">nil</span>)   <span class="cm">// true</span></code></pre>
+
+                <h3>Error unions</h3>
+                <p>
+                    <code>!T</code> marks a type that is either a success value
+                    of type <code>T</code> or an error. Error unions appear in
+                    function signatures to signal that the caller must handle
+                    possible failure.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">fetch</span>(<span class="id">url</span>: <span class="ty">String</span>) <span class="op">-></span> <span class="op">!</span><span class="ty">String</span> {
+    <span class="cm">// ...</span>
+}</code></pre>
+                <p>
+                    <code>try expr</code> unwraps the success value from an
+                    <code>!T</code>. If <code>expr</code> is an error,
+                    <code>try</code> immediately returns that error from the
+                    enclosing function (which must itself return
+                    <code>!U</code>).
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">process</span>(<span class="id">url</span>: <span class="ty">String</span>) <span class="op">-></span> <span class="op">!</span><span class="ty">int</span> {
+    <span class="kw">let</span> <span class="id">body</span> <span class="op">=</span> <span class="kw">try</span> <span class="fn">fetch</span>(<span class="id">url</span>)   <span class="cm">// body is String, not !String</span>
+    <span class="kw">rn</span> <span class="num">200</span>
+}</code></pre>
+                <p>
+                    <code>!expr</code> also unwraps <code>!T</code> to
+                    <code>T</code>, but traps (fatal runtime error) if the value
+                    is an error. Use it when you're certain success is
+                    guaranteed.
+                </p>
+
+                <h3>Type syntax rules</h3>
+                <p>
+                    Nillable and error union modifiers can be combined, but only
+                    with parentheses to avoid ambiguity:
+                </p>
+                <table>
+                    <tr>
+                        <th>Syntax</th>
+                        <th>Meaning</th>
+                    </tr>
+                    <tr>
+                        <td><code>int?</code></td>
+                        <td>nillable int</td>
+                    </tr>
+                    <tr>
+                        <td><code>!int</code></td>
+                        <td>error union of int</td>
+                    </tr>
+                    <tr>
+                        <td><code>(!int)?</code></td>
+                        <td>nillable error union — ok</td>
+                    </tr>
+                    <tr>
+                        <td><code>!(int?)</code></td>
+                        <td>error union of nillable — ok</td>
+                    </tr>
+                    <tr>
+                        <td><code>!int?</code></td>
+                        <td>rejected — ambiguous without parens</td>
+                    </tr>
+                </table>
             </section>
 
             <section id="functions">
@@ -779,9 +934,9 @@
                 </p>
                 <pre><code><span class="kw">and    break   continue  elif    else</span>
 <span class="kw">false  fn      for       if      import</span>
-<span class="kw">in     let     not       obj     or</span>
-<span class="kw">pub    rn      true      use     val</span>
-<span class="kw">while</span></code></pre>
+<span class="kw">in     let     nil       not     obj</span>
+<span class="kw">or     pub     rn        true    try</span>
+<span class="kw">use    val     while</span></code></pre>
             </section>
 
             <section id="builtins">
