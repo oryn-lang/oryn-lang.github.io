@@ -348,6 +348,7 @@
                 <a href="#primitives">Primitives</a>
                 <a href="#bindings">Bindings</a>
                 <a href="#strings">Strings</a>
+                <a href="#lists">Lists</a>
                 <a href="#operators">Operators</a>
                 <a href="#control-flow">Control flow</a>
                 <a href="#nil-handling">Nil &amp; errors</a>
@@ -432,6 +433,12 @@
                     operator applied to a positive literal:
                     <code>-5</code> parses as <code>-(5)</code>.
                 </p>
+                <p>
+                    The only parameterized type is <code>[T]</code>, a
+                    homogeneous list — see <a href="#lists">Lists</a>.
+                    Collections of user-defined types are built with
+                    <a href="#objects">objects</a>.
+                </p>
             </section>
 
             <section id="bindings">
@@ -481,6 +488,152 @@
                 </p>
             </section>
 
+            <section id="lists">
+                <h2>Lists</h2>
+                <p>
+                    <code>[T]</code> is a homogeneous, growable sequence of
+                    values of type <code>T</code>. It's the only
+                    parameterized type in Oryn — the element type is
+                    tracked statically at compile time, and
+                    <code>[int]</code> and <code>[String]</code> are
+                    distinct types that can't be mixed.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">scores</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span><span class="op">]</span>
+<span class="fn">print</span>(<span class="id">scores</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>)   <span class="cm">// 10</span>
+
+<span class="id">scores</span><span class="op">[</span><span class="num">0</span><span class="op">]</span> <span class="op">=</span> <span class="num">99</span>     <span class="cm">// in-place assignment</span>
+<span class="fn">print</span>(<span class="id">scores</span><span class="op">[</span><span class="num">0</span><span class="op">]</span>)   <span class="cm">// 99</span></code></pre>
+                <p>
+                    List literals use square brackets with
+                    comma-separated values. The annotation can be omitted
+                    when the element type can be inferred from the
+                    literal:
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">names</span> <span class="op">=</span> <span class="op">[</span><span class="st">"alice"</span>, <span class="st">"bob"</span><span class="op">]</span>   <span class="cm">// inferred as [String]</span>
+<span class="kw">let</span> <span class="id">grid</span>: <span class="op">[[</span><span class="ty">int</span><span class="op">]]</span> <span class="op">=</span> <span class="op">[[</span><span class="num">1</span>, <span class="num">2</span><span class="op">]</span>, <span class="op">[</span><span class="num">3</span>, <span class="num">4</span><span class="op">]]</span>   <span class="cm">// nested lists</span></code></pre>
+                <p>
+                    Empty literals carry no element type on their own, so
+                    an annotation is required:
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">xs</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[]</span>   <span class="cm">// ok — annotation provides context</span>
+<span class="cm">// let ys = []           // error: cannot infer element type</span></code></pre>
+
+                <h3>Methods</h3>
+                <p>
+                    Three builtin methods are available on every list,
+                    dispatched through the receiver's element type:
+                </p>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Signature</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><code>len</code></td>
+                        <td><code>xs.len() -&gt; int</code></td>
+                        <td>current element count</td>
+                    </tr>
+                    <tr>
+                        <td><code>push</code></td>
+                        <td><code>xs.push(value: T)</code></td>
+                        <td>
+                            append in place — <code>value</code> must
+                            match the declared element type
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>pop</code></td>
+                        <td><code>xs.pop() -&gt; T?</code></td>
+                        <td>
+                            remove and return the last element, or
+                            <code>nil</code> if empty
+                        </td>
+                    </tr>
+                </table>
+                <pre><code><span class="kw">let</span> <span class="id">stack</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[]</span>
+<span class="id">stack</span>.<span class="fn">push</span>(<span class="num">1</span>)
+<span class="id">stack</span>.<span class="fn">push</span>(<span class="num">2</span>)
+<span class="fn">print</span>(<span class="id">stack</span>.<span class="fn">len</span>())   <span class="cm">// 2</span>
+
+<span class="kw">if</span> <span class="kw">let</span> <span class="id">top</span> <span class="op">=</span> <span class="id">stack</span>.<span class="fn">pop</span>() {
+    <span class="fn">print</span>(<span class="id">top</span>)       <span class="cm">// 2</span>
+}</code></pre>
+
+                <h3>Iteration</h3>
+                <p>
+                    <code>for … in</code> works directly on lists. The
+                    loop variable binds with the element type, so you
+                    can access fields and call methods on it without an
+                    annotation.
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Enemy</span> {
+    <span class="id">name</span>: <span class="ty">String</span>
+    <span class="id">hp</span>: <span class="ty">int</span>
+}
+
+<span class="kw">let</span> <span class="id">squad</span>: <span class="op">[</span><span class="ty">Enemy</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span>
+    <span class="ty">Enemy</span> { <span class="id">name</span>: <span class="st">"orc"</span>, <span class="id">hp</span>: <span class="num">10</span> },
+    <span class="ty">Enemy</span> { <span class="id">name</span>: <span class="st">"troll"</span>, <span class="id">hp</span>: <span class="num">25</span> },
+<span class="op">]</span>
+
+<span class="kw">for</span> <span class="id">e</span> <span class="kw">in</span> <span class="id">squad</span> {
+    <span class="fn">print</span>(<span class="st">"{e.name}: {e.hp}"</span>)
+}</code></pre>
+                <p>
+                    <code>break</code> and <code>continue</code> work the
+                    same as in range loops. Nested iteration falls out
+                    naturally — <code>for row in grid { for cell in row
+                    { … } }</code>.
+                </p>
+
+                <h3>Semantics &amp; limits</h3>
+                <ul>
+                    <li>
+                        <strong>Mutable.</strong> Lists are reference
+                        values; <code>push</code>, <code>pop</code>, and
+                        <code>xs[i] = value</code> mutate in place. A
+                        <code>let</code> binding is required if you want
+                        to reassign the list itself; <code>val</code>
+                        still permits element mutation.
+                    </li>
+                    <li>
+                        <strong>Invariant.</strong>
+                        <code>[int]</code> is not compatible with
+                        <code>[int?]</code> or <code>[float]</code>.
+                        There's no subtyping between list types.
+                    </li>
+                    <li>
+                        <strong>Bounds-checked.</strong>
+                        <code>xs[i]</code> and <code>xs[i] = value</code>
+                        raise a runtime error
+                        (<code>list index N out of bounds (length
+                        M)</code>) if <code>i</code> is negative or
+                        beyond the end of the list.
+                    </li>
+                    <li>
+                        <strong>Any element type.</strong> Primitives
+                        (<code>int</code>, <code>float</code>,
+                        <code>bool</code>, <code>String</code>),
+                        user-defined <code>obj</code> types, nillables
+                        (<code>[int?]</code>), and nested lists
+                        (<code>[[int]]</code>) all work. Cross-module
+                        obj types need the full qualified path like
+                        <code>[math.vec2.Vec2]</code>.
+                    </li>
+                    <li>
+                        <strong>No equality or slicing yet.</strong>
+                        Comparing lists with <code>==</code>, slicing
+                        (<code>xs[1..3]</code>), and higher-order
+                        methods like <code>map</code> / <code>filter</code>
+                        aren't implemented. The
+                        <a href="#nil-handling"><code>orelse</code></a>
+                        and <code>if let</code> forms cover the common
+                        <code>pop</code> patterns in the meantime.
+                    </li>
+                </ul>
+            </section>
+
             <section id="operators">
                 <h2>Operators</h2>
                 <p>
@@ -498,9 +651,12 @@
                         <td>postfix</td>
                         <td>
                             <code>.field</code>, <code>.method()</code>,
-                            <code>Type { }</code>
+                            <code>Type { }</code>, <code>xs[i]</code>
                         </td>
-                        <td>left-associative</td>
+                        <td>
+                            left-associative; <code>xs[i]</code> is list
+                            indexing (see <a href="#lists">Lists</a>)
+                        </td>
                     </tr>
                     <tr>
                         <td>unary</td>
@@ -574,8 +730,9 @@
                     <code>if</code> / <code>unless</code> /
                     <code>elif</code> / <code>else</code> with required
                     braces, <code>while</code>, and
-                    <code>for … in</code> over ranges. Branches and loop bodies
-                    are always blocks — no single-statement sugar.
+                    <code>for … in</code> over ranges or
+                    <a href="#lists">lists</a>. Branches and loop
+                    bodies are always blocks — no single-statement sugar.
                 </p>
                 <pre><code><span class="kw">if</span> <span class="id">grade</span> <span class="op">>=</span> <span class="num">90</span> {
     <span class="fn">print</span>(<span class="st">"A"</span>)
@@ -601,6 +758,13 @@
     <span class="kw">if</span> <span class="id">n</span> <span class="op">==</span> <span class="num">3</span> { <span class="kw">continue</span> }
     <span class="kw">if</span> <span class="id">n</span> <span class="op">==</span> <span class="num">6</span> { <span class="kw">break</span> }
     <span class="fn">print</span>(<span class="st">"{n}"</span>)
+}
+
+<span class="cm">// Lists are also valid iterables — the loop variable is</span>
+<span class="cm">// bound with the list's element type.</span>
+<span class="kw">let</span> <span class="id">names</span>: <span class="op">[</span><span class="ty">String</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="st">"alice"</span>, <span class="st">"bob"</span><span class="op">]</span>
+<span class="kw">for</span> <span class="id">n</span> <span class="kw">in</span> <span class="id">names</span> {
+    <span class="fn">print</span>(<span class="id">n</span>)
 }</code></pre>
                 <p>
                     <code>elif</code> desugars to <code>else { if … }</code>.
