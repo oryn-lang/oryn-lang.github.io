@@ -356,6 +356,7 @@
                 <a href="#composition">Composition</a>
                 <a href="#visibility">Visibility</a>
                 <a href="#modules">Modules</a>
+                <a href="#testing">Testing</a>
                 <a href="#keywords">Keywords</a>
                 <a href="#builtins">Builtins</a>
             </div>
@@ -934,17 +935,92 @@
                 </p>
             </section>
 
+            <section id="testing">
+                <h2>Testing</h2>
+                <p>
+                    Tests are a language-level feature, not a library. A
+                    <code>test "name" { … }</code> block at module level
+                    declares a named test. The runner discovers them at
+                    compile time — no registry, no macro magic — and
+                    invokes each one in isolation with a fresh VM state.
+                </p>
+                <p>
+                    <code>assert(cond)</code> is a built-in keyword that
+                    requires a boolean expression. A false assertion halts
+                    the current test with a diagnostic pointing at the
+                    exact expression; the report captures the asserted
+                    source text so it reads
+                    <code>assertion failed: add(1, 1) == 3</code>
+                    rather than just <code>assertion failed</code>.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">add</span>(<span class="id">a</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
+    <span class="kw">rn</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
+}
+
+<span class="kw">test</span> <span class="st">"addition works"</span> {
+    <span class="kw">assert</span>(<span class="fn">add</span>(<span class="num">2</span>, <span class="num">3</span>) <span class="op">==</span> <span class="num">5</span>)
+    <span class="kw">assert</span>(<span class="fn">add</span>(<span class="num">0</span>, <span class="num">0</span>) <span class="op">==</span> <span class="num">0</span>)
+}
+
+<span class="kw">test</span> <span class="st">"addition is commutative"</span> {
+    <span class="kw">assert</span>(<span class="fn">add</span>(<span class="num">1</span>, <span class="num">4</span>) <span class="op">==</span> <span class="fn">add</span>(<span class="num">4</span>, <span class="num">1</span>))
+}</code></pre>
+                <p>
+                    Run tests with <code>oryn test [pattern…]</code>. With
+                    no argument the runner walks the project root (the
+                    nearest ancestor with a <code>package.on</code>) and
+                    executes every <code>.on</code> file that contains
+                    test blocks. Pass file paths, directories, or glob
+                    patterns to narrow the scope. Files without any test
+                    blocks are silently skipped.
+                </p>
+                <pre><code><span class="cm">$ oryn test</span>
+
+<span class="kw">✦ testing · 1 file</span>
+
+    <span class="cm">examples/08_tests.on</span>
+      <span class="fn">✓</span> addition works               21µs
+      <span class="fn">✓</span> addition is commutative      2µs
+      <span class="fn">✓</span> max picks the larger value   4µs
+      <span class="bi">✗</span> deliberately broken          1µs
+
+<span class="bi">Error:</span> assertion failed: add(1, 1) == 3
+    ╭─[examples/08_tests.on:40:12]
+ 40 │     assert(add(1, 1) == 3)
+    │            ───────┬──────
+    │                   ╰────── assertion failed: add(1, 1) == 3
+────╯
+  <span class="kw">✦ 3 passed · 1 failed in 10ms</span></code></pre>
+                <p>
+                    Tests defined inside an imported module stay dormant
+                    unless that module is itself matched by the pattern —
+                    <code>oryn test main.on</code> never silently runs
+                    tests that live in modules <code>main.on</code>
+                    happens to import. This keeps each file's test suite
+                    predictable and locally inspectable.
+                </p>
+                <p>
+                    Top-level statements in test files are not executed.
+                    Only <code>fn</code>, <code>obj</code>,
+                    <code>let</code>/<code>val</code> definitions are
+                    made available; the runner invokes test bodies
+                    directly, so stray <code>print</code> calls at module
+                    scope don't fire.
+                </p>
+            </section>
+
             <section id="keywords">
                 <h2>Keywords</h2>
                 <p>
                     Every reserved word in the language today. None of these can
                     be used as an identifier.
                 </p>
-                <pre><code><span class="kw">and    break   continue  elif    else</span>
-<span class="kw">false  fn      for       if      import</span>
-<span class="kw">in     let     nil       not     obj</span>
-<span class="kw">or     pub     rn        true    try</span>
-<span class="kw">unless use     val       while</span></code></pre>
+                <pre><code><span class="kw">and     assert  break   continue  elif</span>
+<span class="kw">else    false   fn      for       if</span>
+<span class="kw">import  in      let     nil       not</span>
+<span class="kw">obj     or      orelse  pub       rn</span>
+<span class="kw">test    true    try     unless    use</span>
+<span class="kw">val     while</span></code></pre>
             </section>
 
             <section id="builtins">
