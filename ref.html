@@ -396,12 +396,12 @@
                         <th>Literal</th>
                     </tr>
                     <tr>
-                        <td><code>i32</code></td>
+                        <td><code>int</code></td>
                         <td>32-bit signed integer</td>
                         <td><code>0</code>, <code>42</code></td>
                     </tr>
                     <tr>
-                        <td><code>f32</code></td>
+                        <td><code>float</code></td>
                         <td>32-bit float</td>
                         <td><code>3.14</code>, <code>0.5</code></td>
                     </tr>
@@ -439,16 +439,16 @@
                     Both can optionally carry a type annotation; otherwise the
                     type is inferred from the right-hand side.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">count</span> <span class="op">=</span> <span class="num">0</span>         <span class="cm">// mutable, inferred as i32</span>
+                <pre><code><span class="kw">let</span> <span class="id">count</span> <span class="op">=</span> <span class="num">0</span>         <span class="cm">// mutable, inferred as int</span>
 <span class="id">count</span> <span class="op">=</span> <span class="id">count</span> <span class="op">+</span> <span class="num">1</span>  <span class="cm">// ok</span>
 
-<span class="kw">val</span> <span class="id">pi</span>: <span class="ty">f32</span> <span class="op">=</span> <span class="num">3.14</span>  <span class="cm">// immutable, annotated</span>
+<span class="kw">val</span> <span class="id">pi</span>: <span class="ty">float</span> <span class="op">=</span> <span class="num">3.14</span>  <span class="cm">// immutable, annotated</span>
 <span class="cm">// pi = 2.71          // error: cannot reassign val binding</span></code></pre>
                 <p>
                     Reassignment goes through the same
                     <code>=</code> operator — there's no separate
                     <code>:=</code>. Types are checked on every reassignment, so
-                    a <code>let</code> declared as <code>i32</code> can't later
+                    a <code>let</code> declared as <code>int</code> can't later
                     be set to a <code>String</code>.
                 </p>
             </section>
@@ -602,7 +602,7 @@
                     explicit type annotation. Return types are optional — omit
                     the <code>-&gt;</code> clause for void functions.
                 </p>
-                <pre><code><span class="kw">fn</span> <span class="fn">add</span>(<span class="id">a</span>: <span class="ty">i32</span>, <span class="id">b</span>: <span class="ty">i32</span>) <span class="op">-></span> <span class="ty">i32</span> {
+                <pre><code><span class="kw">fn</span> <span class="fn">add</span>(<span class="id">a</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
     <span class="kw">rn</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
 }
 
@@ -610,7 +610,7 @@
     <span class="fn">print</span>(<span class="st">"hi {name}"</span>)
 }
 
-<span class="kw">fn</span> <span class="fn">factorial</span>(<span class="id">n</span>: <span class="ty">i32</span>) <span class="op">-></span> <span class="ty">i32</span> {
+<span class="kw">fn</span> <span class="fn">factorial</span>(<span class="id">n</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
     <span class="kw">if</span> <span class="id">n</span> <span class="op"><=</span> <span class="num">1</span> {
         <span class="kw">rn</span> <span class="num">1</span>
     }
@@ -633,10 +633,10 @@
                     <code>TypeName.method(…)</code>.
                 </p>
                 <pre><code><span class="kw">obj</span> <span class="ty">Point</span> {
-    <span class="id">x</span>: <span class="ty">f32</span>
-    <span class="id">y</span>: <span class="ty">f32</span>
+    <span class="id">x</span>: <span class="ty">float</span>
+    <span class="id">y</span>: <span class="ty">float</span>
 
-    <span class="kw">fn</span> <span class="fn">length_sq</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">f32</span> {
+    <span class="kw">fn</span> <span class="fn">length_sq</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">float</span> {
         <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">+</span> <span class="bi">self</span>.<span class="id">y</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">y</span>
     }
 
@@ -667,7 +667,7 @@
                     those methods on themselves.
                 </p>
                 <pre><code><span class="kw">obj</span> <span class="ty">Counter</span> {
-    <span class="id">count</span>: <span class="ty">i32</span>
+    <span class="id">count</span>: <span class="ty">int</span>
 
     <span class="kw">fn</span> <span class="fn">bump</span>(<span class="bi">self</span>) {
         <span class="bi">self</span>.<span class="id">count</span> <span class="op">=</span> <span class="bi">self</span>.<span class="id">count</span> <span class="op">+</span> <span class="num">1</span>
@@ -722,12 +722,12 @@
                     <code>pub</code>.
                 </p>
                 <pre><code><span class="kw">pub</span> <span class="kw">obj</span> <span class="ty">Color</span> {
-    <span class="kw">pub</span> <span class="id">r</span>: <span class="ty">i32</span>
-    <span class="kw">pub</span> <span class="id">g</span>: <span class="ty">i32</span>
-    <span class="kw">pub</span> <span class="id">b</span>: <span class="ty">i32</span>
-    <span class="id">alpha</span>: <span class="ty">i32</span>              <span class="cm">// private — outsiders can't touch it</span>
+    <span class="kw">pub</span> <span class="id">r</span>: <span class="ty">int</span>
+    <span class="kw">pub</span> <span class="id">g</span>: <span class="ty">int</span>
+    <span class="kw">pub</span> <span class="id">b</span>: <span class="ty">int</span>
+    <span class="id">alpha</span>: <span class="ty">int</span>              <span class="cm">// private — outsiders can't touch it</span>
 
-    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">rgb</span>(<span class="id">r</span>: <span class="ty">i32</span>, <span class="id">g</span>: <span class="ty">i32</span>, <span class="id">b</span>: <span class="ty">i32</span>) <span class="op">-></span> <span class="ty">Color</span> {
+    <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">rgb</span>(<span class="id">r</span>: <span class="ty">int</span>, <span class="id">g</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">Color</span> {
         <span class="kw">rn</span> <span class="ty">Color</span> { <span class="id">r</span>: <span class="id">r</span>, <span class="id">g</span>: <span class="id">g</span>, <span class="id">b</span>: <span class="id">b</span>, <span class="id">alpha</span>: <span class="num">255</span> }
     }
 }</code></pre>
