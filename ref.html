@@ -356,6 +356,7 @@
                 <a href="#functions">Functions</a>
                 <a href="#objects">Objects</a>
                 <a href="#composition">Composition</a>
+                <a href="#enums">Enums</a>
                 <a href="#visibility">Visibility</a>
                 <a href="#modules">Modules</a>
                 <a href="#testing">Testing</a>
@@ -914,11 +915,25 @@
                     <code>a orelse b</code> evaluates to <code>a</code> if it
                     is not <code>nil</code>, otherwise <code>b</code>.
                     <code>a</code> must be <code>T?</code> and
-                    <code>b</code> must be <code>T</code>. The result type is
-                    <code>T</code>.
+                    <code>b</code> must be <code>T</code>. The result
+                    type is <code>T</code>.
                 </p>
                 <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
 <span class="kw">let</span> <span class="id">y</span> <span class="op">=</span> <span class="id">x</span> <span class="kw">orelse</span> <span class="num">0</span>     <span class="cm">// y is int, value is 0</span></code></pre>
+                <p>
+                    <code>orelse</code> is right-associative, so a
+                    chain of fallbacks composes naturally without
+                    parentheses. <code>a orelse b orelse c</code>
+                    parses as <code>a orelse (b orelse c)</code>:
+                    every <code>orelse</code> in the chain still sees
+                    a non-nillable <code>T</code> on its right (the
+                    result of the sub-chain), and only the rightmost
+                    operand needs to be plain <code>T</code> as the
+                    final fallback.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">a</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
+<span class="kw">let</span> <span class="id">b</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">7</span>
+<span class="kw">let</span> <span class="id">x</span> <span class="op">=</span> <span class="id">a</span> <span class="kw">orelse</span> <span class="id">b</span> <span class="kw">orelse</span> <span class="num">0</span>   <span class="cm">// x is int, value is 7</span></code></pre>
 
                 <h3>Unwrapping with <code>if let</code></h3>
                 <p>
@@ -1332,6 +1347,130 @@
                 </p>
             </section>
 
+            <section id="enums">
+                <h2>Enums</h2>
+                <p>
+                    An <code>enum</code> declares a closed sum type — a
+                    value is exactly one of a fixed set of named
+                    variants. Variants are either <em>nullary</em>
+                    (carry no data) or carry a named-field
+                    <em>payload</em> with the same shape as
+                    <code>obj</code> fields. Both kinds can mix freely
+                    inside the same enum.
+                </p>
+                <pre><code><span class="kw">enum</span> <span class="ty">Color</span> {
+    <span class="ty">Red</span>
+    <span class="ty">Green</span>
+    <span class="ty">Blue</span>
+}
+
+<span class="kw">enum</span> <span class="ty">GameEvent</span> {
+    <span class="ty">Damage</span> { <span class="id">amount</span>: <span class="ty">int</span> }
+    <span class="ty">Heal</span> { <span class="id">amount</span>: <span class="ty">int</span> }
+    <span class="ty">Move</span> { <span class="id">dx</span>: <span class="ty">int</span>, <span class="id">dy</span>: <span class="ty">int</span> }
+    <span class="ty">GameOver</span>
+}</code></pre>
+                <p>
+                    Construct values with
+                    <code>EnumName.Variant</code> for nullary variants
+                    or
+                    <code>EnumName.Variant { field: value, … }</code>
+                    for payload variants. Field order in the literal
+                    doesn't matter — fields are reordered to declaration
+                    order before the value is built. The
+                    <code>EnumName.</code> prefix is required: there is
+                    no way to import variants directly into the local
+                    namespace.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">c</span> <span class="op">=</span> <span class="ty">Color</span>.<span class="ty">Red</span>
+<span class="kw">let</span> <span class="id">e1</span> <span class="op">=</span> <span class="ty">GameEvent</span>.<span class="ty">Damage</span> { <span class="id">amount</span>: <span class="num">10</span> }
+<span class="kw">let</span> <span class="id">e2</span> <span class="op">=</span> <span class="ty">GameEvent</span>.<span class="ty">Move</span> { <span class="id">dx</span>: <span class="num">3</span>, <span class="id">dy</span>: <span class="num">4</span> }
+<span class="kw">let</span> <span class="id">e3</span> <span class="op">=</span> <span class="ty">GameEvent</span>.<span class="ty">GameOver</span></code></pre>
+                <p>
+                    Equality is <strong>structural</strong>: two enum
+                    values are equal iff their variant tags match
+                    <em>and</em> their payloads are field-by-field
+                    equal. There is no pointer/identity comparison —
+                    two independently constructed
+                    <code>Color.Red</code> values are always equal,
+                    and so are two <code>Pair { x: 1, y: 2 }</code>
+                    values built at different times. Cross-enum
+                    comparisons (a <code>Color</code> against a
+                    <code>Mood</code>) are a compile error even when
+                    both enums happen to have a variant with the same
+                    name — they're distinct types.
+                </p>
+
+                <h3><code>match</code> expressions</h3>
+                <p>
+                    <code>match</code> dispatches on the active
+                    variant. It is an <strong>expression</strong>, not
+                    a statement — every arm body produces a value, and
+                    the match's value is the chosen arm's. The result
+                    flows into a <code>let</code> binding, a function
+                    return, or any other expression context.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">rgb_hex</span>(<span class="id">c</span>: <span class="ty">Color</span>) <span class="op">-></span> <span class="ty">String</span> {
+    <span class="kw">rn</span> <span class="kw">match</span> <span class="id">c</span> {
+        <span class="ty">Color</span>.<span class="ty">Red</span>   <span class="op">=&gt;</span> <span class="str">"#ff0000"</span>
+        <span class="ty">Color</span>.<span class="ty">Green</span> <span class="op">=&gt;</span> <span class="str">"#00ff00"</span>
+        <span class="ty">Color</span>.<span class="ty">Blue</span>  <span class="op">=&gt;</span> <span class="str">"#0000ff"</span>
+    }
+}</code></pre>
+                <p>
+                    Patterns are <em>variant paths</em>
+                    (<code>Color.Red</code>) or the <em>wildcard</em>
+                    <code>_</code>. The wildcard matches anything not
+                    covered by a previous arm, so use it to lump
+                    "everything else" together. Anything written
+                    after a wildcard arm is unreachable and rejected
+                    by the compiler.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">is_terminal</span>(<span class="id">e</span>: <span class="ty">GameEvent</span>) <span class="op">-></span> <span class="ty">bool</span> {
+    <span class="kw">rn</span> <span class="kw">match</span> <span class="id">e</span> {
+        <span class="ty">GameEvent</span>.<span class="ty">GameOver</span> <span class="op">=&gt;</span> <span class="bi">true</span>
+        <span class="op">_</span>                  <span class="op">=&gt;</span> <span class="bi">false</span>
+    }
+}</code></pre>
+                <p>
+                    Match expressions enforce two things at compile
+                    time:
+                </p>
+                <ul>
+                    <li>
+                        <strong>Exhaustiveness</strong> — every variant
+                        of the scrutinee's enum must appear in some arm,
+                        or a <code>_</code> arm must be present. The
+                        compiler lists the missing variants in the
+                        error. There's no middle ground: a wildcard
+                        switches the check off entirely, but in its
+                        absence even one missing variant is an error.
+                    </li>
+                    <li>
+                        <strong>Result type uniformity</strong> — every
+                        arm body must produce the same type. The first
+                        arm's type is the canonical one and subsequent
+                        arms are checked against it.
+                    </li>
+                </ul>
+                <p>
+                    Adding a new variant to an enum is a deliberately
+                    breaking change: every non-wildcard match on that
+                    enum will fail to compile until the new variant is
+                    handled. This is the main reason exhaustiveness is
+                    enforced — match becomes a tool for finding all the
+                    places that care about a particular set of cases.
+                </p>
+                <p>
+                    Slice 1 dispatches on the variant tag only — the
+                    payload comes along for the ride but isn't bound
+                    into the arm body. Payload destructuring (the
+                    <code>Variant { field } =&gt; …</code> form that
+                    binds payload fields as locals inside the arm) is
+                    planned for a future slice.
+                </p>
+            </section>
+
             <section id="visibility">
                 <h2>Visibility</h2>
                 <p>
@@ -1491,11 +1630,11 @@
                     be used as an identifier.
                 </p>
                 <pre><code><span class="kw">and     assert  break   continue  elif</span>
-<span class="kw">else    false   fn      for       if</span>
-<span class="kw">import  in      let     nil       not</span>
-<span class="kw">obj     or      orelse  pub       rn</span>
-<span class="kw">test    true    try     unless    use</span>
-<span class="kw">val     while</span></code></pre>
+<span class="kw">else    enum    false   fn        for</span>
+<span class="kw">if      import  in      let       match</span>
+<span class="kw">nil     not     obj     or        orelse</span>
+<span class="kw">pub     rn      test    true      try</span>
+<span class="kw">unless  use     val     while</span></code></pre>
             </section>
 
             <section id="builtins">
