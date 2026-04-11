@@ -1074,7 +1074,114 @@
                 <p>
                     <code>use</code> takes a single type name or a qualified
                     path (<code>use math.shapes.Polygon</code>). Composed fields
-                    become part of every <code>Score</code> literal.
+                    become part of every <code>Score</code> literal. An
+                    <code>obj</code> may have multiple <code>use</code> clauses
+                    to compose from several types at once.
+                </p>
+
+                <h3>Overriding inherited methods</h3>
+                <p>
+                    A using type may declare its own method or static method
+                    with the same name as one inherited via <code>use</code>.
+                    The own version replaces the inherited one in the using
+                    type's method table — instances of the using type
+                    dispatch to the override.
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Health</span> {
+    <span class="id">hp</span>: <span class="ty">int</span>
+
+    <span class="kw">fn</span> <span class="fn">tick</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">int</span> {
+        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">hp</span>
+    }
+}
+
+<span class="kw">obj</span> <span class="ty">Guard</span> {
+    <span class="kw">use</span> <span class="ty">Health</span>
+    <span class="id">name</span>: <span class="ty">String</span>
+
+    <span class="cm">// Replaces Health.tick on Guard instances.</span>
+    <span class="kw">fn</span> <span class="fn">tick</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">int</span> {
+        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">hp</span> <span class="op">+</span> <span class="num">10</span>
+    }
+}</code></pre>
+                <p>
+                    The override must use the same parameter list and the
+                    same return type as the inherited method. The one
+                    exception is <em>Self-return covariance</em>: a static
+                    method that inherited from a type returning that type
+                    may instead return the using type. This is what makes
+                    overriding constructors like <code>fn make() -&gt; T</code>
+                    work cleanly.
+                </p>
+                <p>
+                    There is no <code>super</code> syntax. To call the
+                    inherited version from inside the override, give the
+                    inherited method a different name and have both
+                    versions call it.
+                </p>
+
+                <h3>Inherited methods do not dispatch through overrides</h3>
+                <p>
+                    Inherited method bodies are statically bound at the
+                    defining type's compile time. If <code>Health.tick</code>
+                    internally calls <code>self.label()</code>, that call
+                    always goes to <code>Health.label</code> — even on a
+                    Guard instance whose own <code>label</code> would
+                    otherwise shadow it. Overrides only kick in when the
+                    method is called from outside the inheritance chain.
+                </p>
+                <p>
+                    The reason: there is no virtual dispatch table. The
+                    bytecode for <code>Health.tick</code> hard-codes the
+                    function index of <code>Health.label</code> at compile
+                    time. This keeps method calls cheap and predictable but
+                    means you should override the entry point method, not
+                    rely on overriding helper methods inside it.
+                </p>
+
+                <h3>Fields cannot be overridden</h3>
+                <p>
+                    Methods can be overridden because they are entries in
+                    a name-keyed table; replacing one swaps the table
+                    entry. Fields, on the other hand, are slots at fixed
+                    offsets in memory: redeclaring an inherited field
+                    name would either duplicate storage or shift the
+                    layout in a way that breaks every inherited method
+                    that reads at the old offset.
+                </p>
+                <p>
+                    A using type that declares a field whose name
+                    collides with an inherited field is a compile error.
+                    Pick a different name, or wrap the inherited
+                    <code>obj</code> as a field instead of composing it
+                    via <code>use</code>.
+                </p>
+
+                <h3>Multi-use conflicts</h3>
+                <p>
+                    Two <code>use</code> clauses that contribute the same
+                    field or method name conflict by default. The
+                    error can be resolved by declaring the same name on
+                    the using type itself — the own version replaces
+                    both inherited candidates without a signature check,
+                    because the user is explicitly picking neither.
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Guard</span> {
+    <span class="kw">use</span> <span class="ty">Health</span>
+    <span class="kw">use</span> <span class="ty">Mana</span>
+
+    <span class="cm">// Both Health and Mana define `tick(self)`.</span>
+    <span class="cm">// This explicit declaration resolves the conflict.</span>
+    <span class="kw">fn</span> <span class="fn">tick</span>(<span class="bi">self</span>) {
+        <span class="bi">self</span>.<span class="id">hp</span> <span class="op">=</span> <span class="bi">self</span>.<span class="id">hp</span> <span class="op">-</span> <span class="num">1</span>
+        <span class="bi">self</span>.<span class="id">mp</span> <span class="op">=</span> <span class="bi">self</span>.<span class="id">mp</span> <span class="op">+</span> <span class="num">1</span>
+    }
+}</code></pre>
+                <p>
+                    Field name collisions across <code>use</code> clauses
+                    are always errors and cannot be resolved this way —
+                    the using type would need a different field name
+                    anyway, since fields cannot be overridden.
                 </p>
             </section>
 
