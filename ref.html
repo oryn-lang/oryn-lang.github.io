@@ -1150,6 +1150,69 @@
 
 <span class="kw">val</span> <span class="id">zs</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="num">1</span><span class="op">]</span>
 <span class="cm">// add_item(zs, 2)         // error: cannot pass to mut parameter 1 of `add_item` from val binding `zs`</span></code></pre>
+
+                <h3>First-class functions</h3>
+                <p>
+                    Functions are first-class values. A bare identifier
+                    that resolves to a top-level function evaluates to a
+                    function value, and the type of "a function taking
+                    int and returning int" is written
+                    <code>fn(int) -> int</code>. Function values can be
+                    bound to locals, passed as arguments, returned from
+                    other functions, and stored in struct fields.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">double</span>(<span class="id">x</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> { <span class="kw">return</span> <span class="id">x</span> <span class="op">*</span> <span class="num">2</span> }
+
+<span class="kw">let</span> <span class="id">f</span>: <span class="kw">fn</span>(<span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> <span class="op">=</span> <span class="fn">double</span>
+<span class="fn">print</span>(<span class="id">f</span>(<span class="num">21</span>))                       <span class="cm">// 42</span>
+
+<span class="kw">fn</span> <span class="fn">apply</span>(<span class="id">op</span>: <span class="kw">fn</span>(<span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span>, <span class="id">x</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
+    <span class="kw">return</span> <span class="id">op</span>(<span class="id">x</span>)
+}
+<span class="fn">print</span>(<span class="fn">apply</span>(<span class="fn">double</span>, <span class="num">5</span>))             <span class="cm">// 10</span></code></pre>
+
+                <h3>Anonymous functions and closures</h3>
+                <p>
+                    Anonymous functions are written <code>fn(params) -> T { body }</code>
+                    — the same shape as a top-level declaration without
+                    the name. They can be assigned to locals, passed as
+                    arguments, or called inline by parenthesizing.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">quadruple</span> <span class="op">=</span> <span class="kw">fn</span>(<span class="id">x</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> { <span class="kw">return</span> <span class="id">x</span> <span class="op">*</span> <span class="num">4</span> }
+<span class="fn">print</span>(<span class="id">quadruple</span>(<span class="num">7</span>))                  <span class="cm">// 28</span>
+
+<span class="fn">print</span>((<span class="kw">fn</span>(<span class="id">x</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> { <span class="kw">return</span> <span class="id">x</span> <span class="op">+</span> <span class="num">100</span> })(<span class="num">7</span>))  <span class="cm">// 107</span></code></pre>
+                <p>
+                    An anonymous function that references an outer local
+                    becomes a <strong>closure</strong>: the compiler walks
+                    the body, finds free variables that resolve to outer
+                    locals, and snapshots their values into the closure's
+                    environment at the moment the closure is created.
+                    Captures are read-only inside the closure body.
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">make_adder</span>(<span class="id">n</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="kw">fn</span>(<span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
+    <span class="kw">return</span> <span class="kw">fn</span>(<span class="id">x</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> { <span class="kw">return</span> <span class="id">x</span> <span class="op">+</span> <span class="id">n</span> }
+}
+
+<span class="kw">let</span> <span class="id">add100</span> <span class="op">=</span> <span class="fn">make_adder</span>(<span class="num">100</span>)
+<span class="kw">let</span> <span class="id">add5</span> <span class="op">=</span> <span class="fn">make_adder</span>(<span class="num">5</span>)
+<span class="fn">print</span>(<span class="id">add100</span>(<span class="num">7</span>))                     <span class="cm">// 107</span>
+<span class="fn">print</span>(<span class="id">add5</span>(<span class="num">7</span>))                       <span class="cm">// 12</span></code></pre>
+                <p>
+                    Each closure carries its own snapshot of captured
+                    values. Trying to assign to a captured local inside
+                    the closure body is a compile error — captures are
+                    by-value and read-only. If you need mutable shared
+                    state across closures, put it in a struct field
+                    (the binding is read-only but the captured struct's
+                    contents are mutable through its methods).
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">run</span>() {
+    <span class="kw">let</span> <span class="id">counter</span> <span class="op">=</span> <span class="num">0</span>
+    <span class="kw">let</span> <span class="id">inc</span> <span class="op">=</span> <span class="kw">fn</span>() {
+        <span class="id">counter</span> <span class="op">=</span> <span class="id">counter</span> <span class="op">+</span> <span class="num">1</span>   <span class="cm">// error: cannot mutate captured value `counter`</span>
+    }
+}</code></pre>
             </section>
 
             <section id="objects">
