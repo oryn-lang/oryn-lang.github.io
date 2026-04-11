@@ -391,7 +391,7 @@
             <section id="primitives">
                 <h2>Primitive types</h2>
                 <p>
-                    Four built-in value types plus <code>Range</code>. The type
+                    Four built-in value types plus <code>range</code>. The type
                     names as they appear in annotations:
                 </p>
                 <table>
@@ -416,12 +416,12 @@
                         <td><code>true</code>, <code>false</code></td>
                     </tr>
                     <tr>
-                        <td><code>String</code></td>
+                        <td><code>string</code></td>
                         <td>UTF-8 string</td>
                         <td><code>"hi"</code></td>
                     </tr>
                     <tr>
-                        <td><code>Range</code></td>
+                        <td><code>range</code></td>
                         <td>integer range iterator</td>
                         <td><code>0..5</code>, <code>0..=5</code></td>
                     </tr>
@@ -480,13 +480,13 @@
                     <code>:=</code>. Types are checked on every
                     reassignment, so a <code>let</code> declared as
                     <code>int</code> can't later be set to a
-                    <code>String</code>.
+                    <code>string</code>.
                 </p>
                 <p>
                     The <code>val</code> rule reaches all the way through
                     the value:
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Bag</span> { <span class="id">items</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> }
+                <pre><code><span class="kw">struct</span> <span class="ty">Bag</span> { <span class="id">items</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> }
 
 <span class="kw">val</span> <span class="id">b</span> <span class="op">=</span> <span class="ty">Bag</span> { <span class="id">items</span>: <span class="op">[</span><span class="num">1</span>, <span class="num">2</span><span class="op">]</span> }
 <span class="cm">// b.items.push(3)    // error: cannot call mutating method `push` on val binding `b`</span>
@@ -599,8 +599,8 @@
                     can access fields and call methods on it without an
                     annotation.
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Enemy</span> {
-    <span class="id">name</span>: <span class="ty">String</span>
+                <pre><code><span class="kw">struct</span> <span class="ty">Enemy</span> {
+    <span class="id">name</span>: <span class="ty">string</span>
     <span class="id">hp</span>: <span class="ty">int</span>
 }
 
@@ -646,8 +646,8 @@
                     <li>
                         <strong>Any element type.</strong> Primitives
                         (<code>int</code>, <code>float</code>,
-                        <code>bool</code>, <code>String</code>),
-                        user-defined <code>obj</code> types, nillables
+                        <code>bool</code>, <code>string</code>),
+                        user-defined <code>struct</code> types, nillables
                         (<code>[int?]</code>), and nested lists
                         (<code>[[int]]</code>) all work. Cross-module
                         obj types need the full qualified path like
@@ -671,10 +671,10 @@
                 <p>
                     <code>{K: V}</code> is a homogeneous map from keys of type
                     <code>K</code> to values of type <code>V</code>. Key types
-                    are limited to <code>String</code>, <code>int</code>, and
+                    are limited to <code>string</code>, <code>int</code>, and
                     <code>bool</code>. Values can be any Oryn type.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">stats</span>: <span class="op">{</span><span class="ty">String</span>: <span class="ty">int</span><span class="op">}</span> <span class="op">=</span> <span class="op">{</span> <span class="st">"hp"</span>: <span class="num">100</span>, <span class="st">"mp"</span>: <span class="num">25</span> <span class="op">}</span>
+                <pre><code><span class="kw">let</span> <span class="id">stats</span>: <span class="op">{</span><span class="ty">string</span>: <span class="ty">int</span><span class="op">}</span> <span class="op">=</span> <span class="op">{</span> <span class="st">"hp"</span>: <span class="num">100</span>, <span class="st">"mp"</span>: <span class="num">25</span> <span class="op">}</span>
 <span class="fn">print</span>(<span class="id">stats</span><span class="op">[</span><span class="st">"hp"</span><span class="op">]</span> <span class="kw">orelse</span> <span class="num">0</span>)   <span class="cm">// 100</span>
 
 <span class="id">stats</span><span class="op">[</span><span class="st">"hp"</span><span class="op">]</span> <span class="op">=</span> <span class="num">80</span>              <span class="cm">// replace</span>
@@ -693,7 +693,7 @@
                     Empty map literals carry no key or value type on their own,
                     so an annotation is required:
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">flags</span>: <span class="op">{</span><span class="ty">String</span>: <span class="ty">bool</span><span class="op">}</span> <span class="op">=</span> <span class="op">{}</span>   <span class="cm">// ok — annotation provides context</span>
+                <pre><code><span class="kw">let</span> <span class="id">flags</span>: <span class="op">{</span><span class="ty">string</span>: <span class="ty">bool</span><span class="op">}</span> <span class="op">=</span> <span class="op">{}</span>   <span class="cm">// ok — annotation provides context</span>
 <span class="cm">// let flags = {}              // error: cannot infer key/value types</span></code></pre>
 
                 <h3>Semantics &amp; limits</h3>
@@ -782,7 +782,7 @@
                     </tr>
                     <tr>
                         <td>prefix</td>
-                        <td><code>try x</code>, <code>!x</code></td>
+                        <td><code>try x</code>, <code>must x</code></td>
                         <td>error propagation / unwrap-or-trap</td>
                     </tr>
                     <tr>
@@ -806,16 +806,19 @@
                     (<code>+=</code>, <code>-=</code>, …), and no
                     <code>&amp;&amp;</code> / <code>||</code> — the logical
                     operators are always spelled <code>and</code> /
-                    <code>or</code> / <code>not</code>. The
-                    <code>!</code> symbol is used as the error-unwrap prefix
-                    operator and in <code>!T</code> error union type syntax.
+                    <code>or</code> / <code>not</code>. Type modifiers
+                    (<code>maybe T</code>, <code>error T</code>) and the
+                    error-unwrap operator (<code>must expr</code>) are
+                    word keywords too — Oryn uses symbols only where no
+                    English word fits naturally (arithmetic, comparison,
+                    assignment, ranges).
                 </p>
             </section>
 
             <section id="control-flow">
                 <h2>Control flow</h2>
                 <p>
-                    <code>if</code> / <code>unless</code> /
+                    <code>if</code> / <code>if not</code> /
                     <code>elif</code> / <code>else</code> with required
                     braces, <code>while</code>, and
                     <code>for … in</code> over ranges or
@@ -829,7 +832,7 @@
 } <span class="kw">else</span> {
     <span class="fn">print</span>(<span class="st">"C"</span>)
 }</code></pre>
-                <pre><code><span class="kw">unless</span> <span class="id">debug</span> {
+                <pre><code><span class="kw">if not</span> <span class="id">debug</span> {
     <span class="fn">print</span>(<span class="st">"debug logging is off"</span>)
 } <span class="kw">else</span> {
     <span class="fn">print</span>(<span class="st">"debug logging is on"</span>)
@@ -850,13 +853,13 @@
 
 <span class="cm">// Lists are also valid iterables — the loop variable is</span>
 <span class="cm">// bound with the list's element type.</span>
-<span class="kw">let</span> <span class="id">names</span>: <span class="op">[</span><span class="ty">String</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="st">"alice"</span>, <span class="st">"bob"</span><span class="op">]</span>
+<span class="kw">let</span> <span class="id">names</span>: <span class="op">[</span><span class="ty">string</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="st">"alice"</span>, <span class="st">"bob"</span><span class="op">]</span>
 <span class="kw">for</span> <span class="id">n</span> <span class="kw">in</span> <span class="id">names</span> {
     <span class="fn">print</span>(<span class="id">n</span>)
 }</code></pre>
                 <p>
                     <code>elif</code> desugars to <code>else { if … }</code>.
-                    <code>unless</code> is the inverse of
+                    <code>if not</code> is the inverse of
                     <code>if</code>: its body runs when the condition is
                     false. There is no <code>match</code>, no ternary, no
                     do-while, and no labels on loops.
@@ -874,8 +877,8 @@
                     branch-scoped binding. See
                     <a href="#nil-handling">Nil &amp; errors</a> for details.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">maybe</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">42</span>
-<span class="kw">if</span> <span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="id">maybe</span> {
+                <pre><code><span class="kw">let</span> <span class="id">opt</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="num">42</span>
+<span class="kw">if</span> <span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="id">opt</span> {
     <span class="fn">print</span>(<span class="id">v</span>)
 }</code></pre>
             </section>
@@ -884,27 +887,28 @@
                 <h2>Nil &amp; errors</h2>
                 <p>
                     Oryn has first-class support for absent values and explicit
-                    error handling. <code>T?</code> is a nillable type — a value
-                    that might be <code>nil</code>. <code>!T</code> is an error
+                    error handling. <code>maybe T</code> is a nillable type — a value
+                    that might be <code>nil</code>. <code>error T</code> is an error
                     union — a value that is either <code>T</code> or an error.
                 </p>
 
                 <h3>Nillable types</h3>
                 <p>
-                    Append <code>?</code> to any type to make it nillable.
-                    <code>nil</code> is assignable to any <code>T?</code>, and a
-                    plain <code>T</code> value is also assignable to
-                    <code>T?</code> (value promotion).
+                    Prefix any type with <code>maybe</code> to make it
+                    nillable. <code>nil</code> is assignable to any
+                    <code>maybe T</code>, and a plain <code>T</code> value
+                    is also assignable to <code>maybe T</code> (value
+                    promotion).
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">score</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">42</span>
-<span class="kw">let</span> <span class="id">empty</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
+                <pre><code><span class="kw">let</span> <span class="id">score</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="num">42</span>
+<span class="kw">let</span> <span class="id">empty</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="kw">nil</span>
 
-<span class="kw">fn</span> <span class="fn">maybe_name</span>(<span class="id">id</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">String</span><span class="op">?</span> {
-    <span class="kw">if</span> <span class="id">id</span> <span class="op">==</span> <span class="num">1</span> { <span class="kw">rn</span> <span class="st">"Alice"</span> }
-    <span class="kw">rn</span> <span class="kw">nil</span>
+<span class="kw">fn</span> <span class="fn">find_name</span>(<span class="id">id</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="kw">maybe</span> <span class="ty">string</span> {
+    <span class="kw">if</span> <span class="id">id</span> <span class="op">==</span> <span class="num">1</span> { <span class="kw">return</span> <span class="st">"Alice"</span> }
+    <span class="kw">return</span> <span class="kw">nil</span>
 }</code></pre>
                 <p>
-                    A <code>T?</code> value cannot be used where
+                    A <code>maybe T</code> value cannot be used where
                     <code>T</code> is expected — you must unwrap it first with
                     <code>orelse</code>, <code>if let</code>, or an explicit
                     nil check.
@@ -914,11 +918,11 @@
                 <p>
                     <code>a orelse b</code> evaluates to <code>a</code> if it
                     is not <code>nil</code>, otherwise <code>b</code>.
-                    <code>a</code> must be <code>T?</code> and
+                    <code>a</code> must be <code>maybe T</code> and
                     <code>b</code> must be <code>T</code>. The result
                     type is <code>T</code>.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
+                <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="kw">nil</span>
 <span class="kw">let</span> <span class="id">y</span> <span class="op">=</span> <span class="id">x</span> <span class="kw">orelse</span> <span class="num">0</span>     <span class="cm">// y is int, value is 0</span></code></pre>
                 <p>
                     <code>orelse</code> is right-associative, so a
@@ -931,20 +935,20 @@
                     operand needs to be plain <code>T</code> as the
                     final fallback.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">a</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">nil</span>
-<span class="kw">let</span> <span class="id">b</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">7</span>
+                <pre><code><span class="kw">let</span> <span class="id">a</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="kw">nil</span>
+<span class="kw">let</span> <span class="id">b</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="num">7</span>
 <span class="kw">let</span> <span class="id">x</span> <span class="op">=</span> <span class="id">a</span> <span class="kw">orelse</span> <span class="id">b</span> <span class="kw">orelse</span> <span class="num">0</span>   <span class="cm">// x is int, value is 7</span></code></pre>
 
                 <h3>Unwrapping with <code>if let</code></h3>
                 <p>
-                    <code>if let</code> tests a <code>T?</code> and, when it is
+                    <code>if let</code> tests a <code>maybe T</code> and, when it is
                     not nil, binds the unwrapped value to a new name scoped to
                     the then-branch.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">maybe</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">7</span>
+                <pre><code><span class="kw">let</span> <span class="id">opt</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="num">7</span>
 
-<span class="kw">if</span> <span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="id">maybe</span> {
-    <span class="fn">print</span>(<span class="st">"got {v}"</span>)   <span class="cm">// v is int, not int?</span>
+<span class="kw">if</span> <span class="kw">let</span> <span class="id">v</span> <span class="op">=</span> <span class="id">opt</span> {
+    <span class="fn">print</span>(<span class="st">"got {v}"</span>)   <span class="cm">// v is int, not maybe int</span>
 } <span class="kw">else</span> {
     <span class="fn">print</span>(<span class="st">"nothing"</span>)
 }</code></pre>
@@ -957,45 +961,47 @@
                 <h3>Nil equality</h3>
                 <p>
                     <code>== nil</code> and <code>!= nil</code> work on any
-                    <code>T?</code> value. Comparing two non-nil values still
+                    <code>maybe T</code> value. Comparing two non-nil values still
                     requires them to be the same type.
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="ty">int</span><span class="op">?</span> <span class="op">=</span> <span class="num">5</span>
+                <pre><code><span class="kw">let</span> <span class="id">x</span>: <span class="kw">maybe</span> <span class="ty">int</span> <span class="op">=</span> <span class="num">5</span>
 <span class="fn">print</span>(<span class="id">x</span> <span class="op">==</span> <span class="kw">nil</span>)   <span class="cm">// false</span>
 <span class="fn">print</span>(<span class="id">x</span> <span class="op">!=</span> <span class="kw">nil</span>)   <span class="cm">// true</span></code></pre>
 
                 <h3>Error unions</h3>
                 <p>
-                    <code>!T</code> marks a type that is either a success value
+                    <code>error T</code> marks a type that is either a success value
                     of type <code>T</code> or an error. Error unions appear in
                     function signatures to signal that the caller must handle
                     possible failure.
                 </p>
-                <pre><code><span class="kw">fn</span> <span class="fn">fetch</span>(<span class="id">url</span>: <span class="ty">String</span>) <span class="op">-></span> <span class="op">!</span><span class="ty">String</span> {
+                <pre><code><span class="kw">fn</span> <span class="fn">fetch</span>(<span class="id">url</span>: <span class="ty">string</span>) <span class="op">-></span> <span class="kw">error</span> <span class="ty">string</span> {
     <span class="cm">// ...</span>
 }</code></pre>
                 <p>
                     <code>try expr</code> unwraps the success value from an
-                    <code>!T</code>. If <code>expr</code> is an error,
+                    <code>error T</code>. If <code>expr</code> is an error,
                     <code>try</code> immediately returns that error from the
                     enclosing function (which must itself return
-                    <code>!U</code>).
+                    <code>error U</code>).
                 </p>
-                <pre><code><span class="kw">fn</span> <span class="fn">process</span>(<span class="id">url</span>: <span class="ty">String</span>) <span class="op">-></span> <span class="op">!</span><span class="ty">int</span> {
-    <span class="kw">let</span> <span class="id">body</span> <span class="op">=</span> <span class="kw">try</span> <span class="fn">fetch</span>(<span class="id">url</span>)   <span class="cm">// body is String, not !String</span>
-    <span class="kw">rn</span> <span class="num">200</span>
+                <pre><code><span class="kw">fn</span> <span class="fn">process</span>(<span class="id">url</span>: <span class="ty">string</span>) <span class="op">-></span> <span class="kw">error</span> <span class="ty">int</span> {
+    <span class="kw">let</span> <span class="id">body</span> <span class="op">=</span> <span class="kw">try</span> <span class="fn">fetch</span>(<span class="id">url</span>)   <span class="cm">// body is string, not error string</span>
+    <span class="kw">return</span> <span class="num">200</span>
 }</code></pre>
                 <p>
-                    <code>!expr</code> also unwraps <code>!T</code> to
-                    <code>T</code>, but traps (fatal runtime error) if the value
-                    is an error. Use it when you're certain success is
+                    <code>must expr</code> also unwraps <code>error T</code>
+                    to <code>T</code>, but traps (fatal runtime error) if the
+                    value is an error. Use it when you're certain success is
                     guaranteed.
                 </p>
 
                 <h3>Type syntax rules</h3>
                 <p>
-                    Nillable and error union modifiers can be combined, but only
-                    with parentheses to avoid ambiguity:
+                    Both <code>maybe</code> and <code>error</code> are
+                    prefix keywords. Because they're both prefix, they
+                    compose freely without parentheses; the modifiers
+                    apply right-to-left exactly as written.
                 </p>
                 <table>
                     <tr>
@@ -1003,24 +1009,20 @@
                         <th>Meaning</th>
                     </tr>
                     <tr>
-                        <td><code>int?</code></td>
+                        <td><code>maybe int</code></td>
                         <td>nillable int</td>
                     </tr>
                     <tr>
-                        <td><code>!int</code></td>
+                        <td><code>error int</code></td>
                         <td>error union of int</td>
                     </tr>
                     <tr>
-                        <td><code>(!int)?</code></td>
-                        <td>nillable error union — ok</td>
+                        <td><code>maybe error int</code></td>
+                        <td>nillable error union</td>
                     </tr>
                     <tr>
-                        <td><code>!(int?)</code></td>
-                        <td>error union of nillable — ok</td>
-                    </tr>
-                    <tr>
-                        <td><code>!int?</code></td>
-                        <td>rejected — ambiguous without parens</td>
+                        <td><code>error maybe int</code></td>
+                        <td>error union of nillable</td>
                     </tr>
                 </table>
             </section>
@@ -1033,23 +1035,23 @@
                     the <code>-&gt;</code> clause for void functions.
                 </p>
                 <pre><code><span class="kw">fn</span> <span class="fn">add</span>(<span class="id">a</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
-    <span class="kw">rn</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
+    <span class="kw">return</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
 }
 
-<span class="kw">fn</span> <span class="fn">greet</span>(<span class="id">name</span>: <span class="ty">String</span>) {
+<span class="kw">fn</span> <span class="fn">greet</span>(<span class="id">name</span>: <span class="ty">string</span>) {
     <span class="fn">print</span>(<span class="st">"hi {name}"</span>)
 }
 
 <span class="kw">fn</span> <span class="fn">factorial</span>(<span class="id">n</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
     <span class="kw">if</span> <span class="id">n</span> <span class="op"><=</span> <span class="num">1</span> {
-        <span class="kw">rn</span> <span class="num">1</span>
+        <span class="kw">return</span> <span class="num">1</span>
     }
-    <span class="kw">rn</span> <span class="id">n</span> <span class="op">*</span> <span class="fn">factorial</span>(<span class="id">n</span> <span class="op">-</span> <span class="num">1</span>)
+    <span class="kw">return</span> <span class="id">n</span> <span class="op">*</span> <span class="fn">factorial</span>(<span class="id">n</span> <span class="op">-</span> <span class="num">1</span>)
 }</code></pre>
                 <p>
-                    <code>rn</code> is how you return a value. Function bodies
+                    <code>return</code> is how you return a value. Function bodies
                     don't implicitly return their last expression — a function
-                    that ends without <code>rn</code> returns <code>void</code>.
+                    that ends without <code>return</code> returns <code>void</code>.
                 </p>
 
                 <h3>Parameter mutability</h3>
@@ -1068,7 +1070,7 @@
     <span class="cm">// xs.push(0)         // error: cannot call mutating method `push` on parameter `xs`</span>
     <span class="kw">let</span> <span class="id">total</span> <span class="op">=</span> <span class="num">0</span>
     <span class="cm">// ...</span>
-    <span class="kw">rn</span> <span class="id">total</span>
+    <span class="kw">return</span> <span class="id">total</span>
 }</code></pre>
                 <p>
                     A <code>mut</code> parameter cannot accept a
@@ -1087,22 +1089,22 @@
             <section id="objects">
                 <h2>Objects</h2>
                 <p>
-                    <code>obj</code> is the struct-with-methods type. Fields are
+                    <code>struct</code> is the struct-with-methods type. Fields are
                     name-typed; methods are declared inside the body. A first
                     parameter named <code>self</code> makes the method an
                     instance method; otherwise it's a static method called via
                     <code>TypeName.method(…)</code>.
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Point</span> {
+                <pre><code><span class="kw">struct</span> <span class="ty">Point</span> {
     <span class="id">x</span>: <span class="ty">float</span>
     <span class="id">y</span>: <span class="ty">float</span>
 
     <span class="kw">fn</span> <span class="fn">length_sq</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">float</span> {
-        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">+</span> <span class="bi">self</span>.<span class="id">y</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">y</span>
+        <span class="kw">return</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">x</span> <span class="op">+</span> <span class="bi">self</span>.<span class="id">y</span> <span class="op">*</span> <span class="bi">self</span>.<span class="id">y</span>
     }
 
     <span class="kw">fn</span> <span class="fn">zero</span>() <span class="op">-></span> <span class="ty">Point</span> {
-        <span class="kw">rn</span> <span class="ty">Point</span> { <span class="id">x</span>: <span class="num">0.0</span>, <span class="id">y</span>: <span class="num">0.0</span> }
+        <span class="kw">return</span> <span class="ty">Point</span> { <span class="id">x</span>: <span class="num">0.0</span>, <span class="id">y</span>: <span class="num">0.0</span> }
     }
 }
 
@@ -1130,12 +1132,12 @@
                     fields, or call any <code>mut self</code> method on
                     <code>self</code>.
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Counter</span> {
+                <pre><code><span class="kw">struct</span> <span class="ty">Counter</span> {
     <span class="id">count</span>: <span class="ty">int</span>
 
     <span class="cm">// Reads self only — plain `self`.</span>
     <span class="kw">fn</span> <span class="fn">get</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">int</span> {
-        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">count</span>
+        <span class="kw">return</span> <span class="bi">self</span>.<span class="id">count</span>
     }
 
     <span class="cm">// Writes self.count — receiver must be `mut self`.</span>
@@ -1194,11 +1196,11 @@
                 <p>
                     Oryn has no inheritance. Instead, <code>use</code>
                     pulls every field and method from another
-                    <code>obj</code> directly into the current one. Instances of
+                    <code>struct</code> directly into the current one. Instances of
                     the composing type carry those fields inline and can call
                     those methods on themselves.
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Counter</span> {
+                <pre><code><span class="kw">struct</span> <span class="ty">Counter</span> {
     <span class="id">count</span>: <span class="ty">int</span>
 
     <span class="kw">fn</span> <span class="fn">bump</span>(<span class="bi">self</span>) {
@@ -1206,12 +1208,12 @@
     }
 }
 
-<span class="kw">obj</span> <span class="ty">Score</span> {
+<span class="kw">struct</span> <span class="ty">Score</span> {
     <span class="kw">use</span> <span class="ty">Counter</span>
-    <span class="id">label</span>: <span class="ty">String</span>
+    <span class="id">label</span>: <span class="ty">string</span>
 
-    <span class="kw">fn</span> <span class="fn">new</span>(<span class="id">label</span>: <span class="ty">String</span>) <span class="op">-></span> <span class="ty">Score</span> {
-        <span class="kw">rn</span> <span class="ty">Score</span> { <span class="id">count</span>: <span class="num">0</span>, <span class="id">label</span>: <span class="id">label</span> }
+    <span class="kw">fn</span> <span class="fn">new</span>(<span class="id">label</span>: <span class="ty">string</span>) <span class="op">-></span> <span class="ty">Score</span> {
+        <span class="kw">return</span> <span class="ty">Score</span> { <span class="id">count</span>: <span class="num">0</span>, <span class="id">label</span>: <span class="id">label</span> }
     }
 }
 
@@ -1222,7 +1224,7 @@
                     <code>use</code> takes a single type name or a qualified
                     path (<code>use math.shapes.Polygon</code>). Composed fields
                     become part of every <code>Score</code> literal. An
-                    <code>obj</code> may have multiple <code>use</code> clauses
+                    <code>struct</code> may have multiple <code>use</code> clauses
                     to compose from several types at once.
                 </p>
 
@@ -1234,21 +1236,21 @@
                     type's method table — instances of the using type
                     dispatch to the override.
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Health</span> {
+                <pre><code><span class="kw">struct</span> <span class="ty">Health</span> {
     <span class="id">hp</span>: <span class="ty">int</span>
 
     <span class="kw">fn</span> <span class="fn">tick</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">int</span> {
-        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">hp</span>
+        <span class="kw">return</span> <span class="bi">self</span>.<span class="id">hp</span>
     }
 }
 
-<span class="kw">obj</span> <span class="ty">Guard</span> {
+<span class="kw">struct</span> <span class="ty">Guard</span> {
     <span class="kw">use</span> <span class="ty">Health</span>
-    <span class="id">name</span>: <span class="ty">String</span>
+    <span class="id">name</span>: <span class="ty">string</span>
 
     <span class="cm">// Replaces Health.tick on Guard instances.</span>
     <span class="kw">fn</span> <span class="fn">tick</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">int</span> {
-        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">hp</span> <span class="op">+</span> <span class="num">10</span>
+        <span class="kw">return</span> <span class="bi">self</span>.<span class="id">hp</span> <span class="op">+</span> <span class="num">10</span>
     }
 }</code></pre>
                 <p>
@@ -1315,7 +1317,7 @@
                     A using type that declares a field whose name
                     collides with an inherited field is a compile error.
                     Pick a different name, or wrap the inherited
-                    <code>obj</code> as a field instead of composing it
+                    <code>struct</code> as a field instead of composing it
                     via <code>use</code>.
                 </p>
 
@@ -1328,7 +1330,7 @@
                     both inherited candidates without a signature check,
                     because the user is explicitly picking neither.
                 </p>
-                <pre><code><span class="kw">obj</span> <span class="ty">Guard</span> {
+                <pre><code><span class="kw">struct</span> <span class="ty">Guard</span> {
     <span class="kw">use</span> <span class="ty">Health</span>
     <span class="kw">use</span> <span class="ty">Mana</span>
 
@@ -1355,7 +1357,7 @@
                     variants. Variants are either <em>nullary</em>
                     (carry no data) or carry a named-field
                     <em>payload</em> with the same shape as
-                    <code>obj</code> fields. Both kinds can mix freely
+                    <code>struct</code> fields. Both kinds can mix freely
                     inside the same enum.
                 </p>
                 <pre><code><span class="kw">enum</span> <span class="ty">Color</span> {
@@ -1410,8 +1412,8 @@
                     flows into a <code>let</code> binding, a function
                     return, or any other expression context.
                 </p>
-                <pre><code><span class="kw">fn</span> <span class="fn">rgb_hex</span>(<span class="id">c</span>: <span class="ty">Color</span>) <span class="op">-></span> <span class="ty">String</span> {
-    <span class="kw">rn</span> <span class="kw">match</span> <span class="id">c</span> {
+                <pre><code><span class="kw">fn</span> <span class="fn">rgb_hex</span>(<span class="id">c</span>: <span class="ty">Color</span>) <span class="op">-></span> <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="kw">match</span> <span class="id">c</span> {
         <span class="ty">Color</span>.<span class="ty">Red</span>   <span class="op">=&gt;</span> <span class="str">"#ff0000"</span>
         <span class="ty">Color</span>.<span class="ty">Green</span> <span class="op">=&gt;</span> <span class="str">"#00ff00"</span>
         <span class="ty">Color</span>.<span class="ty">Blue</span>  <span class="op">=&gt;</span> <span class="str">"#0000ff"</span>
@@ -1427,7 +1429,7 @@
                     by the compiler.
                 </p>
                 <pre><code><span class="kw">fn</span> <span class="fn">is_terminal</span>(<span class="id">e</span>: <span class="ty">GameEvent</span>) <span class="op">-></span> <span class="ty">bool</span> {
-    <span class="kw">rn</span> <span class="kw">match</span> <span class="id">e</span> {
+    <span class="kw">return</span> <span class="kw">match</span> <span class="id">e</span> {
         <span class="ty">GameEvent</span>.<span class="ty">GameOver</span> <span class="op">=&gt;</span> <span class="bi">true</span>
         <span class="op">_</span>                  <span class="op">=&gt;</span> <span class="bi">false</span>
     }
@@ -1474,13 +1476,13 @@
                     same brace block.
                 </p>
                 <pre><code><span class="kw">enum</span> <span class="ty">FsResult</span> {
-    <span class="ty">Ok</span> { <span class="id">content</span>: <span class="ty">String</span> }
+    <span class="ty">Ok</span> { <span class="id">content</span>: <span class="ty">string</span> }
     <span class="ty">NotFound</span>
-    <span class="ty">Permission</span> { <span class="id">reason</span>: <span class="ty">String</span> }
+    <span class="ty">Permission</span> { <span class="id">reason</span>: <span class="ty">string</span> }
 }
 
-<span class="kw">fn</span> <span class="fn">describe</span>(<span class="id">r</span>: <span class="ty">FsResult</span>) <span class="op">-></span> <span class="ty">String</span> {
-    <span class="kw">rn</span> <span class="kw">match</span> <span class="id">r</span> {
+<span class="kw">fn</span> <span class="fn">describe</span>(<span class="id">r</span>: <span class="ty">FsResult</span>) <span class="op">-></span> <span class="ty">string</span> {
+    <span class="kw">return</span> <span class="kw">match</span> <span class="id">r</span> {
         <span class="ty">FsResult</span>.<span class="ty">Ok</span> { <span class="id">content</span> }            <span class="op">=&gt;</span> <span class="str">"got file: {content}"</span>
         <span class="ty">FsResult</span>.<span class="ty">NotFound</span>                  <span class="op">=&gt;</span> <span class="str">"missing"</span>
         <span class="ty">FsResult</span>.<span class="ty">Permission</span> { <span class="id">reason</span>: <span class="id">why</span> } <span class="op">=&gt;</span> <span class="str">"denied because {why}"</span>
@@ -1535,11 +1537,11 @@
                     <li><code>pub fn</code> — top-level functions</li>
                     <li><code>pub obj</code> — type definitions</li>
                     <li>
-                        <code>pub</code> on a field inside an <code>obj</code> —
+                        <code>pub</code> on a field inside an <code>struct</code> —
                         read/write from outside the module
                     </li>
                     <li>
-                        <code>pub fn</code> inside an <code>obj</code> —
+                        <code>pub fn</code> inside an <code>struct</code> —
                         callable from outside the module
                     </li>
                 </ul>
@@ -1548,14 +1550,14 @@
                     file, everything can see everything regardless of
                     <code>pub</code>.
                 </p>
-                <pre><code><span class="kw">pub</span> <span class="kw">obj</span> <span class="ty">Color</span> {
+                <pre><code><span class="kw">pub</span> <span class="kw">struct</span> <span class="ty">Color</span> {
     <span class="kw">pub</span> <span class="id">r</span>: <span class="ty">int</span>
     <span class="kw">pub</span> <span class="id">g</span>: <span class="ty">int</span>
     <span class="kw">pub</span> <span class="id">b</span>: <span class="ty">int</span>
     <span class="id">alpha</span>: <span class="ty">int</span>              <span class="cm">// private — outsiders can't touch it</span>
 
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="fn">rgb</span>(<span class="id">r</span>: <span class="ty">int</span>, <span class="id">g</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">Color</span> {
-        <span class="kw">rn</span> <span class="ty">Color</span> { <span class="id">r</span>: <span class="id">r</span>, <span class="id">g</span>: <span class="id">g</span>, <span class="id">b</span>: <span class="id">b</span>, <span class="id">alpha</span>: <span class="num">255</span> }
+        <span class="kw">return</span> <span class="ty">Color</span> { <span class="id">r</span>: <span class="id">r</span>, <span class="id">g</span>: <span class="id">g</span>, <span class="id">b</span>: <span class="id">b</span>, <span class="id">alpha</span>: <span class="num">255</span> }
     }
 }</code></pre>
             </section>
@@ -1617,7 +1619,7 @@
                     rather than just <code>assertion failed</code>.
                 </p>
                 <pre><code><span class="kw">fn</span> <span class="fn">add</span>(<span class="id">a</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="ty">int</span> {
-    <span class="kw">rn</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
+    <span class="kw">return</span> <span class="id">a</span> <span class="op">+</span> <span class="id">b</span>
 }
 
 <span class="kw">test</span> <span class="st">"addition works"</span> {
@@ -1664,7 +1666,7 @@
                 </p>
                 <p>
                     Top-level statements in test files are not executed.
-                    Only <code>fn</code>, <code>obj</code>,
+                    Only <code>fn</code>, <code>struct</code>,
                     <code>let</code>/<code>val</code> definitions are
                     made available; the runner invokes test bodies
                     directly, so stray <code>print</code> calls at module
@@ -1679,11 +1681,12 @@
                     be used as an identifier.
                 </p>
                 <pre><code><span class="kw">and     assert  break   continue  elif</span>
-<span class="kw">else    enum    false   fn        for</span>
-<span class="kw">if      import  in      let       match</span>
-<span class="kw">nil     not     obj     or        orelse</span>
-<span class="kw">pub     rn      test    true      try</span>
-<span class="kw">unless  use     val     while</span></code></pre>
+<span class="kw">else    enum    error   false     fn</span>
+<span class="kw">for     if      import  in        let</span>
+<span class="kw">match   maybe   must    nil       not</span>
+<span class="kw">or      orelse  pub     return    struct</span>
+<span class="kw">test    true    try     use       val</span>
+<span class="kw">while</span></code></pre>
             </section>
 
             <section id="builtins">
