@@ -518,6 +518,85 @@
                     are preserved verbatim — the backslash and the next
                     character both end up in the string.
                 </p>
+
+                <h3>Methods</h3>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Signature</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><code>len</code></td>
+                        <td><code>s.len() -&gt; int</code></td>
+                        <td>UTF-8 byte length</td>
+                    </tr>
+                    <tr>
+                        <td><code>to_upper</code></td>
+                        <td><code>s.to_upper() -&gt; string</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>to_lower</code></td>
+                        <td><code>s.to_lower() -&gt; string</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>trim</code></td>
+                        <td><code>s.trim() -&gt; string</code></td>
+                        <td>strips whitespace from both ends</td>
+                    </tr>
+                    <tr>
+                        <td><code>contains</code></td>
+                        <td><code>s.contains(needle: string) -&gt; bool</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>starts_with</code></td>
+                        <td><code>s.starts_with(prefix: string) -&gt; bool</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>ends_with</code></td>
+                        <td><code>s.ends_with(suffix: string) -&gt; bool</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>index_of</code></td>
+                        <td><code>s.index_of(needle: string) -&gt; maybe int</code></td>
+                        <td>byte offset, or nil</td>
+                    </tr>
+                    <tr>
+                        <td><code>replace</code></td>
+                        <td><code>s.replace(from: string, to: string) -&gt; string</code></td>
+                        <td>replaces every occurrence</td>
+                    </tr>
+                    <tr>
+                        <td><code>split</code></td>
+                        <td><code>s.split(sep: string) -&gt; [string]</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>repeat</code></td>
+                        <td><code>s.repeat(n: int) -&gt; string</code></td>
+                        <td>0 or negative ⇒ empty string</td>
+                    </tr>
+                    <tr>
+                        <td><code>chars</code></td>
+                        <td><code>s.chars() -&gt; [string]</code></td>
+                        <td>one entry per UTF-8 char</td>
+                    </tr>
+                    <tr>
+                        <td><code>parse_int</code></td>
+                        <td><code>s.parse_int() -&gt; maybe int</code></td>
+                        <td>nil on invalid input</td>
+                    </tr>
+                    <tr>
+                        <td><code>parse_float</code></td>
+                        <td><code>s.parse_float() -&gt; maybe float</code></td>
+                        <td>nil on invalid input</td>
+                    </tr>
+                </table>
             </section>
 
             <section id="lists">
@@ -552,8 +631,12 @@
 
                 <h3>Methods</h3>
                 <p>
-                    Three builtin methods are available on every list,
-                    dispatched through the receiver's element type:
+                    Lists carry a full set of methods. Mutating methods
+                    (<code>push</code>, <code>pop</code>, <code>insert</code>,
+                    <code>remove</code>, <code>clear</code>, <code>reverse</code>,
+                    <code>sort</code>) require a <code>let</code>-bound receiver
+                    or a <code>mut self</code>; non-mutating methods work on
+                    either kind of binding.
                 </p>
                 <table>
                     <tr>
@@ -567,20 +650,119 @@
                         <td>current element count</td>
                     </tr>
                     <tr>
+                        <td><code>is_empty</code></td>
+                        <td><code>xs.is_empty() -&gt; bool</code></td>
+                        <td>true if no elements</td>
+                    </tr>
+                    <tr>
                         <td><code>push</code></td>
                         <td><code>xs.push(value: T)</code></td>
-                        <td>
-                            append in place — <code>value</code> must
-                            match the declared element type
-                        </td>
+                        <td>append in place</td>
                     </tr>
                     <tr>
                         <td><code>pop</code></td>
-                        <td><code>xs.pop() -&gt; T?</code></td>
-                        <td>
-                            remove and return the last element, or
-                            <code>nil</code> if empty
-                        </td>
+                        <td><code>xs.pop() -&gt; maybe T</code></td>
+                        <td>remove last; nil if empty</td>
+                    </tr>
+                    <tr>
+                        <td><code>insert</code></td>
+                        <td><code>xs.insert(idx: int, value: T)</code></td>
+                        <td>insert at index; raises out-of-bounds</td>
+                    </tr>
+                    <tr>
+                        <td><code>remove</code></td>
+                        <td><code>xs.remove(idx: int) -&gt; T</code></td>
+                        <td>remove at index; raises out-of-bounds</td>
+                    </tr>
+                    <tr>
+                        <td><code>clear</code></td>
+                        <td><code>xs.clear()</code></td>
+                        <td>drop every element</td>
+                    </tr>
+                    <tr>
+                        <td><code>contains</code></td>
+                        <td><code>xs.contains(value: T) -&gt; bool</code></td>
+                        <td>structural equality</td>
+                    </tr>
+                    <tr>
+                        <td><code>index_of</code></td>
+                        <td><code>xs.index_of(value: T) -&gt; maybe int</code></td>
+                        <td>first match, or nil</td>
+                    </tr>
+                    <tr>
+                        <td><code>first</code></td>
+                        <td><code>xs.first() -&gt; maybe T</code></td>
+                        <td>nil on empty</td>
+                    </tr>
+                    <tr>
+                        <td><code>last</code></td>
+                        <td><code>xs.last() -&gt; maybe T</code></td>
+                        <td>nil on empty</td>
+                    </tr>
+                    <tr>
+                        <td><code>reverse</code></td>
+                        <td><code>xs.reverse()</code></td>
+                        <td>in place</td>
+                    </tr>
+                    <tr>
+                        <td><code>sort</code></td>
+                        <td><code>xs.sort()</code></td>
+                        <td>only for <code>[int]</code>, <code>[float]</code>, <code>[string]</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>concat</code></td>
+                        <td><code>xs.concat(other: [T]) -&gt; [T]</code></td>
+                        <td>non-mutating</td>
+                    </tr>
+                </table>
+
+                <h4>Higher-order methods</h4>
+                <p>
+                    These take a <code>fn</code> callback. The compiler
+                    inlines them as bytecode loops, so they have the
+                    same performance characteristics as a hand-written
+                    <code>for</code> loop.
+                </p>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Signature</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><code>map</code></td>
+                        <td><code>xs.map(fn(T) -&gt; U) -&gt; [U]</code></td>
+                        <td>transform each element</td>
+                    </tr>
+                    <tr>
+                        <td><code>filter</code></td>
+                        <td><code>xs.filter(fn(T) -&gt; bool) -&gt; [T]</code></td>
+                        <td>keep matching elements</td>
+                    </tr>
+                    <tr>
+                        <td><code>fold</code></td>
+                        <td><code>xs.fold(init: U, fn(U, T) -&gt; U) -&gt; U</code></td>
+                        <td>reduce to a single value</td>
+                    </tr>
+                    <tr>
+                        <td><code>each</code></td>
+                        <td><code>xs.each(fn(T))</code></td>
+                        <td>side effects only</td>
+                    </tr>
+                    <tr>
+                        <td><code>find</code></td>
+                        <td><code>xs.find(fn(T) -&gt; bool) -&gt; maybe T</code></td>
+                        <td>first match or nil; short-circuits</td>
+                    </tr>
+                    <tr>
+                        <td><code>any</code></td>
+                        <td><code>xs.any(fn(T) -&gt; bool) -&gt; bool</code></td>
+                        <td>short-circuits on first true</td>
+                    </tr>
+                    <tr>
+                        <td><code>all</code></td>
+                        <td><code>xs.all(fn(T) -&gt; bool) -&gt; bool</code></td>
+                        <td>short-circuits on first false</td>
                     </tr>
                 </table>
                 <pre><code><span class="kw">let</span> <span class="id">stack</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[]</span>
@@ -655,10 +837,8 @@
                     </li>
                     <li>
                         <strong>No equality or slicing yet.</strong>
-                        Comparing lists with <code>==</code>, slicing
-                        (<code>xs[1..3]</code>), and higher-order
-                        methods like <code>map</code> / <code>filter</code>
-                        aren't implemented. The
+                        Comparing lists with <code>==</code> and slicing
+                        (<code>xs[1..3]</code>) aren't implemented. The
                         <a href="#nil-handling"><code>orelse</code></a>
                         and <code>if let</code> forms cover the common
                         <code>pop</code> patterns in the meantime.
@@ -711,14 +891,64 @@
                     <li>
                         <strong>No iteration yet.</strong>
                         <code>for … in</code> works on ranges and lists, but not
-                        maps.
-                    </li>
-                    <li>
-                        <strong>No builtin map methods yet.</strong> There is
-                        no <code>len</code>, <code>remove</code>, or
-                        <code>keys</code> method.
+                        maps. Use <code>m.keys()</code> or <code>m.values()</code>
+                        and iterate the resulting list.
                     </li>
                 </ul>
+
+                <h3>Methods</h3>
+                <table>
+                    <tr>
+                        <th>Method</th>
+                        <th>Signature</th>
+                        <th>Notes</th>
+                    </tr>
+                    <tr>
+                        <td><code>len</code></td>
+                        <td><code>m.len() -&gt; int</code></td>
+                        <td>entry count</td>
+                    </tr>
+                    <tr>
+                        <td><code>is_empty</code></td>
+                        <td><code>m.is_empty() -&gt; bool</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>contains_key</code></td>
+                        <td><code>m.contains_key(key: K) -&gt; bool</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>get</code></td>
+                        <td><code>m.get(key: K) -&gt; maybe V</code></td>
+                        <td>nil if missing</td>
+                    </tr>
+                    <tr>
+                        <td><code>insert</code></td>
+                        <td><code>m.insert(key: K, value: V)</code></td>
+                        <td>replaces if key exists</td>
+                    </tr>
+                    <tr>
+                        <td><code>remove</code></td>
+                        <td><code>m.remove(key: K) -&gt; maybe V</code></td>
+                        <td>old value, or nil</td>
+                    </tr>
+                    <tr>
+                        <td><code>clear</code></td>
+                        <td><code>m.clear()</code></td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td><code>keys</code></td>
+                        <td><code>m.keys() -&gt; [K]</code></td>
+                        <td>insertion order</td>
+                    </tr>
+                    <tr>
+                        <td><code>values</code></td>
+                        <td><code>m.values() -&gt; [V]</code></td>
+                        <td>insertion order</td>
+                    </tr>
+                </table>
             </section>
 
             <section id="operators">
@@ -1820,7 +2050,14 @@
 
             <section id="builtins">
                 <h2>Builtins</h2>
-                <p>The runtime ships exactly one builtin function:</p>
+                <p>
+                    A small set of free-standing functions are always
+                    in scope. They share the same dispatch path as
+                    methods on <a href="#strings">strings</a>,
+                    <a href="#lists">lists</a>, and
+                    <a href="#maps">maps</a> — all routed through the
+                    native registry.
+                </p>
                 <table>
                     <tr>
                         <th>Name</th>
@@ -1829,19 +2066,58 @@
                     </tr>
                     <tr>
                         <td><code>print</code></td>
-                        <td>
-                            <code>print(values…)</code>
-                        </td>
+                        <td><code>print(values…)</code></td>
                         <td>
                             Writes each value to stdout separated by
                             <code>", "</code>, then a newline.
+                            Variadic.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>len</code></td>
+                        <td>
+                            <code>len(string | [T] | {K: V}) -&gt; int</code>
+                        </td>
+                        <td>
+                            Polymorphic length. The receiver-method
+                            forms (<code>s.len()</code>,
+                            <code>xs.len()</code>) are usually clearer.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>to_string</code></td>
+                        <td><code>to_string(T) -&gt; string</code></td>
+                        <td>
+                            Render any value to its source-equivalent
+                            string form. Equivalent to using the value
+                            inside an interpolated <code>"{x}"</code>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>parse_int</code></td>
+                        <td><code>parse_int(string) -&gt; maybe int</code></td>
+                        <td>
+                            Wrapper around <code>s.parse_int()</code>
+                            for call-style use.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><code>assert</code></td>
+                        <td><code>assert(bool)</code></td>
+                        <td>
+                            Statement-level form raises a runtime
+                            assertion error on false. The function
+                            form is callable indirectly (e.g. as a
+                            test-harness callback).
                         </td>
                     </tr>
                 </table>
                 <p>
-                    Every other function you call comes from your own code or
-                    from a module you imported. There is no standard library
-                    yet.
+                    Adding a new builtin or method is a one-file change
+                    in <code>crates/oryn/src/native/&lt;type&gt;.rs</code>.
+                    See the
+                    <a href="https://github.com/oryn-lang/oryn">source repo</a>
+                    for the registration model.
                 </p>
             </section>
 
