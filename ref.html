@@ -1586,6 +1586,18 @@
                     <code>struct</code> may have multiple <code>use</code> clauses
                     to compose from several types at once.
                 </p>
+                <p>
+                    Declaration order does not matter: a struct may be
+                    defined before the types it composes, and
+                    <code>use</code> clauses can reach types declared
+                    later in the same file. Transitivity follows
+                    naturally — if <code>B</code> uses <code>A</code>
+                    and <code>C</code> uses <code>B</code>, then
+                    <code>C</code> ends up with every field and method
+                    of <code>A</code> as well. Cyclic composition
+                    (e.g. <code>A use B</code> and
+                    <code>B use A</code>) is rejected at compile time.
+                </p>
 
                 <h3>Overriding inherited methods</h3>
                 <p>
@@ -1636,11 +1648,44 @@
                     couldn't, breaking any <code>val</code> caller
                     relying on the parent signature.
                 </p>
+                <h3>Calling the inherited version from an override</h3>
                 <p>
-                    There is no <code>super</code> syntax. To call the
-                    inherited version from inside the override, give the
-                    inherited method a different name and have both
-                    versions call it.
+                    There is no <code>super</code> keyword. To call the
+                    inherited implementation from inside an override,
+                    use a qualified call on the parent type with
+                    <code>self</code> passed explicitly:
+                </p>
+                <pre><code><span class="kw">struct</span> <span class="ty">Guard</span> {
+    <span class="kw">use</span> <span class="ty">Health</span>
+    <span class="id">name</span>: <span class="ty">string</span>
+
+    <span class="cm">// Override of Health.take_hit that delegates to the parent.</span>
+    <span class="kw">fn</span> <span class="fn">take_hit</span>(<span class="kw">mut</span> <span class="bi">self</span>, <span class="id">amount</span>: <span class="ty">int</span>) {
+        <span class="ty">Health</span>.<span class="fn">take_hit</span>(<span class="bi">self</span>, <span class="id">amount</span>)
+        <span class="fn">print</span>(<span class="st">"{self.name} took {amount} damage"</span>)
+    }
+}</code></pre>
+                <p>
+                    <code>Type.method(self, args...)</code> reuses the
+                    same syntax Oryn already uses for static-method
+                    calls. The compiler recognizes a call to an
+                    <em>instance</em> method on a named type and treats
+                    the first positional argument as an explicit
+                    <code>self</code>. The first argument's type must
+                    equal the named parent or be a type that
+                    transitively <code>use</code>s it — calling
+                    <code>Health.tick(enemy, ...)</code> where
+                    <code>enemy</code> has no relation to Health is a
+                    compile-time error.
+                </p>
+                <p>
+                    The qualified form also disambiguates multi-use
+                    composition naturally. If <code>Mage</code> uses
+                    both <code>Health</code> and <code>Mana</code> and
+                    both define a <code>tick</code> method, the override
+                    can explicitly invoke either one via
+                    <code>Health.tick(self, ...)</code> or
+                    <code>Mana.tick(self, ...)</code>.
                 </p>
 
                 <h3>Inherited methods do not dispatch through overrides</h3>
