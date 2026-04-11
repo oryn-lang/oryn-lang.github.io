@@ -1461,13 +1461,62 @@
                     enforced — match becomes a tool for finding all the
                     places that care about a particular set of cases.
                 </p>
+                <h3>Payload bindings</h3>
                 <p>
-                    Slice 1 dispatches on the variant tag only — the
-                    payload comes along for the ride but isn't bound
-                    into the arm body. Payload destructuring (the
-                    <code>Variant { field } =&gt; …</code> form that
-                    binds payload fields as locals inside the arm) is
-                    planned for a future slice.
+                    A variant pattern can open a <code>{ … }</code>
+                    block to bind payload fields as locals in the
+                    arm body. Each binding is either
+                    <strong>shorthand</strong> (<code>field</code> —
+                    bind a local with the same name as the payload
+                    field) or <strong>explicit</strong>
+                    (<code>field: name</code> — bind under a
+                    different local name). Both forms can mix in the
+                    same brace block.
+                </p>
+                <pre><code><span class="kw">enum</span> <span class="ty">FsResult</span> {
+    <span class="ty">Ok</span> { <span class="id">content</span>: <span class="ty">String</span> }
+    <span class="ty">NotFound</span>
+    <span class="ty">Permission</span> { <span class="id">reason</span>: <span class="ty">String</span> }
+}
+
+<span class="kw">fn</span> <span class="fn">describe</span>(<span class="id">r</span>: <span class="ty">FsResult</span>) <span class="op">-></span> <span class="ty">String</span> {
+    <span class="kw">rn</span> <span class="kw">match</span> <span class="id">r</span> {
+        <span class="ty">FsResult</span>.<span class="ty">Ok</span> { <span class="id">content</span> }            <span class="op">=&gt;</span> <span class="str">"got file: {content}"</span>
+        <span class="ty">FsResult</span>.<span class="ty">NotFound</span>                  <span class="op">=&gt;</span> <span class="str">"missing"</span>
+        <span class="ty">FsResult</span>.<span class="ty">Permission</span> { <span class="id">reason</span>: <span class="id">why</span> } <span class="op">=&gt;</span> <span class="str">"denied because {why}"</span>
+    }
+}</code></pre>
+                <p>
+                    <strong>Partial destructuring</strong> is
+                    allowed: you only have to list the fields you
+                    actually want. Unlisted fields are simply not
+                    bound. A variant with two fields can be matched
+                    with a single binding:
+                </p>
+                <pre><code><span class="kw">enum</span> <span class="ty">Move</span> { <span class="ty">Step</span> { <span class="id">dx</span>: <span class="ty">int</span>, <span class="id">dy</span>: <span class="ty">int</span> } }
+
+<span class="kw">let</span> <span class="id">m</span> <span class="op">=</span> <span class="ty">Move</span>.<span class="ty">Step</span> { <span class="id">dx</span>: <span class="num">3</span>, <span class="id">dy</span>: <span class="num">4</span> }
+<span class="kw">let</span> <span class="id">just_x</span>: <span class="ty">int</span> <span class="op">=</span> <span class="kw">match</span> <span class="id">m</span> {
+    <span class="ty">Move</span>.<span class="ty">Step</span> { <span class="id">dx</span> } <span class="op">=&gt;</span> <span class="id">dx</span>
+}</code></pre>
+                <p>
+                    Bindings inherit the variant's declared field
+                    type — there's no inference. They live only in
+                    the arm body and never leak across arms or out
+                    of the match expression. Inside an arm, a
+                    binding shadows any outer local with the same
+                    name. Tag-only matching (<code>Variant</code>
+                    with no braces) is still valid and matches the
+                    variant regardless of payload contents.
+                </p>
+                <p>
+                    Adding a brace block to a nullary variant
+                    (<code>Color.Red { }</code>) is a compile error,
+                    just like the constructor side. Listing an
+                    unknown field, binding the same local name
+                    twice, or binding a field whose type doesn't
+                    match the arm body's expected type are also
+                    compile errors.
                 </p>
             </section>
 
