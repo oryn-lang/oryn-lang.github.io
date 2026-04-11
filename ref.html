@@ -445,22 +445,52 @@
             <section id="bindings">
                 <h2>Bindings</h2>
                 <p>
-                    <code>let</code> is mutable, <code>val</code> is immutable.
-                    Both can optionally carry a type annotation; otherwise the
-                    type is inferred from the right-hand side.
+                    Oryn has two binding forms with deliberately
+                    different meanings:
                 </p>
-                <pre><code><span class="kw">let</span> <span class="id">count</span> <span class="op">=</span> <span class="num">0</span>         <span class="cm">// mutable, inferred as int</span>
+                <ul>
+                    <li>
+                        <code>let</code> introduces a
+                        <strong>binding</strong> — a name you can rebind
+                        to point at different things. Mutable.
+                    </li>
+                    <li>
+                        <code>val</code> introduces a
+                        <strong>value</strong> — a name for one specific
+                        thing. Transitively immutable: you can't reassign
+                        it, mutate any field, set any indexed element, or
+                        call any mutating method on anything reachable
+                        from it.
+                    </li>
+                </ul>
+                <p>
+                    Both forms can optionally carry a type annotation;
+                    otherwise the type is inferred from the right-hand
+                    side.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">count</span> <span class="op">=</span> <span class="num">0</span>         <span class="cm">// binding, mutable, inferred as int</span>
 <span class="id">count</span> <span class="op">=</span> <span class="id">count</span> <span class="op">+</span> <span class="num">1</span>  <span class="cm">// ok</span>
 
-<span class="kw">val</span> <span class="id">pi</span>: <span class="ty">float</span> <span class="op">=</span> <span class="num">3.14</span>  <span class="cm">// immutable, annotated</span>
-<span class="cm">// pi = 2.71          // error: cannot reassign val binding</span></code></pre>
+<span class="kw">val</span> <span class="id">pi</span>: <span class="ty">float</span> <span class="op">=</span> <span class="num">3.14</span>  <span class="cm">// value, immutable, annotated</span>
+<span class="cm">// pi = 2.71          // error: cannot reassign val binding `pi`</span></code></pre>
                 <p>
                     Reassignment goes through the same
                     <code>=</code> operator — there's no separate
-                    <code>:=</code>. Types are checked on every reassignment, so
-                    a <code>let</code> declared as <code>int</code> can't later
-                    be set to a <code>String</code>.
+                    <code>:=</code>. Types are checked on every
+                    reassignment, so a <code>let</code> declared as
+                    <code>int</code> can't later be set to a
+                    <code>String</code>.
                 </p>
+                <p>
+                    The <code>val</code> rule reaches all the way through
+                    the value:
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Bag</span> { <span class="id">items</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> }
+
+<span class="kw">val</span> <span class="id">b</span> <span class="op">=</span> <span class="ty">Bag</span> { <span class="id">items</span>: <span class="op">[</span><span class="num">1</span>, <span class="num">2</span><span class="op">]</span> }
+<span class="cm">// b.items.push(3)    // error: cannot call mutating method `push` on val binding `b`</span>
+<span class="cm">// b.items[0] = 9     // error: cannot mutate indexed value of val binding `b`</span>
+<span class="id">b</span>.<span class="id">items</span>.<span class="fn">len</span>()         <span class="cm">// ok — len is read-only</span></code></pre>
             </section>
 
             <section id="strings">
@@ -1006,6 +1036,37 @@
                     don't implicitly return their last expression — a function
                     that ends without <code>rn</code> returns <code>void</code>.
                 </p>
+
+                <h3>Parameter mutability</h3>
+                <p>
+                    Parameters are <strong>immutable by default</strong>.
+                    A function cannot reassign a parameter, mutate its
+                    fields, set indexed elements on it, or call mutating
+                    methods on it. To opt a parameter into mutability,
+                    declare it with the <code>mut</code> keyword:
+                </p>
+                <pre><code><span class="kw">fn</span> <span class="fn">add_item</span>(<span class="kw">mut</span> <span class="id">xs</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span>, <span class="id">x</span>: <span class="ty">int</span>) {
+    <span class="id">xs</span>.<span class="fn">push</span>(<span class="id">x</span>)         <span class="cm">// ok — xs is mut</span>
+}
+
+<span class="kw">fn</span> <span class="fn">sum</span>(<span class="id">xs</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span>) <span class="op">-></span> <span class="ty">int</span> {
+    <span class="cm">// xs.push(0)         // error: cannot call mutating method `push` on parameter `xs`</span>
+    <span class="kw">let</span> <span class="id">total</span> <span class="op">=</span> <span class="num">0</span>
+    <span class="cm">// ...</span>
+    <span class="kw">rn</span> <span class="id">total</span>
+}</code></pre>
+                <p>
+                    A <code>mut</code> parameter cannot accept a
+                    <code>val</code>-rooted argument at the call site —
+                    that would let the function mutate something the
+                    caller declared immutable. Pass a <code>let</code>
+                    binding instead.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">ys</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="num">1</span><span class="op">]</span>
+<span class="fn">add_item</span>(<span class="id">ys</span>, <span class="num">2</span>)            <span class="cm">// ok</span>
+
+<span class="kw">val</span> <span class="id">zs</span>: <span class="op">[</span><span class="ty">int</span><span class="op">]</span> <span class="op">=</span> <span class="op">[</span><span class="num">1</span><span class="op">]</span>
+<span class="cm">// add_item(zs, 2)         // error: cannot pass to mut parameter 1 of `add_item` from val binding `zs`</span></code></pre>
             </section>
 
             <section id="objects">
@@ -1034,11 +1095,82 @@
 <span class="fn">print</span>(<span class="id">p</span>.<span class="fn">length_sq</span>())     <span class="cm">// 25.0</span>
 
 <span class="kw">let</span> <span class="id">origin</span> <span class="op">=</span> <span class="ty">Point</span>.<span class="fn">zero</span>()
-<span class="id">p</span>.<span class="id">x</span> <span class="op">=</span> <span class="num">10.0</span>                <span class="cm">// fields are assignable</span></code></pre>
+<span class="id">p</span>.<span class="id">x</span> <span class="op">=</span> <span class="num">10.0</span>                <span class="cm">// fields are assignable on `let` bindings</span></code></pre>
                 <p>
                     Object literals use <code>Type { field: value, … }</code>.
                     Every field must be supplied by name — there's no positional
                     construction. Trailing commas are allowed.
+                </p>
+
+                <h3>Mutating methods (<code>mut self</code>)</h3>
+                <p>
+                    Methods that mutate <code>self</code> declare their
+                    receiver as <code>mut self</code>, using the same
+                    <code>mut</code> keyword that opts non-self
+                    parameters into mutability (see
+                    <a href="#functions">Functions</a>). A method with
+                    plain <code>self</code> is a read-only view: it
+                    cannot write <code>self</code>'s fields, call
+                    mutating list methods on <code>self</code>'s list
+                    fields, or call any <code>mut self</code> method on
+                    <code>self</code>.
+                </p>
+                <pre><code><span class="kw">obj</span> <span class="ty">Counter</span> {
+    <span class="id">count</span>: <span class="ty">int</span>
+
+    <span class="cm">// Reads self only — plain `self`.</span>
+    <span class="kw">fn</span> <span class="fn">get</span>(<span class="bi">self</span>) <span class="op">-></span> <span class="ty">int</span> {
+        <span class="kw">rn</span> <span class="bi">self</span>.<span class="id">count</span>
+    }
+
+    <span class="cm">// Writes self.count — receiver must be `mut self`.</span>
+    <span class="kw">fn</span> <span class="fn">bump</span>(<span class="kw">mut</span> <span class="bi">self</span>) {
+        <span class="bi">self</span>.<span class="id">count</span> <span class="op">=</span> <span class="bi">self</span>.<span class="id">count</span> <span class="op">+</span> <span class="num">1</span>
+    }
+}</code></pre>
+                <p>
+                    Calling a <code>mut self</code> method on a
+                    <code>val</code>-rooted receiver is a compile error
+                    — that's how <code>val</code>'s transitive
+                    immutability extends through method calls. A plain
+                    <code>self</code> method can be called on either
+                    <code>let</code> or <code>val</code> bindings.
+                </p>
+                <pre><code><span class="kw">let</span> <span class="id">c</span>: <span class="ty">Counter</span> <span class="op">=</span> <span class="ty">Counter</span> { <span class="id">count</span>: <span class="num">0</span> }
+<span class="id">c</span>.<span class="fn">bump</span>()                  <span class="cm">// ok</span>
+<span class="id">c</span>.<span class="fn">get</span>()                   <span class="cm">// ok</span>
+
+<span class="kw">val</span> <span class="id">v</span>: <span class="ty">Counter</span> <span class="op">=</span> <span class="ty">Counter</span> { <span class="id">count</span>: <span class="num">0</span> }
+<span class="cm">// v.bump()              // error: cannot call mutating method `bump` on val binding `v`</span>
+<span class="id">v</span>.<span class="fn">get</span>()                   <span class="cm">// ok — get takes plain self</span></code></pre>
+                <p>
+                    A method taking plain <code>self</code> may not
+                    call a <code>mut self</code> method on
+                    <code>self</code> — the plain method's contract
+                    said it wouldn't mutate, and delegating to a
+                    mutating sibling would break that contract for any
+                    <code>val</code> caller relying on it. The same
+                    rule applies in reverse: declare the enclosing
+                    method's receiver as <code>mut self</code> if it
+                    needs to call mutating siblings.
+                </p>
+                <p>
+                    Reassigning <code>self</code> wholesale
+                    (<code>self = …</code>) is always a compile error,
+                    even inside a <code>mut self</code> method. The
+                    local for <code>self</code> is conceptually a
+                    receiver borrow; rebinding it would silently no-op
+                    for the caller. Mutate <code>self</code>'s fields
+                    instead, or return a new value and let the caller
+                    rebind.
+                </p>
+                <p>
+                    Top-level (non-method) functions don't have a
+                    <code>self</code> parameter, so the
+                    <code>mut self</code> form doesn't apply. They use
+                    the parameter-side <code>mut</code> described in
+                    <a href="#functions">Functions</a> instead — same
+                    keyword, same meaning.
                 </p>
             </section>
 
@@ -1112,6 +1244,21 @@
                     may instead return the using type. This is what makes
                     overriding constructors like <code>fn make() -&gt; T</code>
                     work cleanly.
+                </p>
+                <p>
+                    The override must also agree with the inherited
+                    method's receiver mutability, with one asymmetry:
+                    a <code>mut self</code> method may be overridden
+                    by a plain <code>self</code> method (the override
+                    is <em>more</em> restrictive — strictly safer for
+                    <code>val</code> callers, who couldn't call the
+                    inherited mutating version but can call the plain
+                    override). The reverse — overriding a plain
+                    <code>self</code> method with a <code>mut self</code>
+                    one — is rejected because it would let mutation
+                    flow where the inherited contract said it
+                    couldn't, breaking any <code>val</code> caller
+                    relying on the parent signature.
                 </p>
                 <p>
                     There is no <code>super</code> syntax. To call the
