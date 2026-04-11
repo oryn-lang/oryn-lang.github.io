@@ -975,8 +975,24 @@
                     function signatures to signal that the caller must handle
                     possible failure.
                 </p>
-                <pre><code><span class="kw">fn</span> <span class="fn">fetch</span>(<span class="id">url</span>: <span class="ty">string</span>) <span class="op">-></span> <span class="kw">error</span> <span class="ty">string</span> {
-    <span class="cm">// ...</span>
+                <p>
+                    Errors are regular enum values declared with the
+                    <code>error</code> modifier. An <code>error enum</code>
+                    declares a type whose variants are valid on the error side
+                    of any <code>error T</code> union. Variants can carry
+                    named-field payloads just like regular enums, so errors
+                    can ship contextual data along with the tag.
+                </p>
+                <pre><code><span class="kw">error enum</span> <span class="ty">MathError</span> {
+    <span class="id">DivByZero</span>
+    <span class="id">Overflow</span> { <span class="id">value</span>: <span class="ty">int</span> }
+}
+
+<span class="kw">fn</span> <span class="fn">divide</span>(<span class="id">a</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="kw">error</span> <span class="ty">int</span> {
+    <span class="kw">if</span> <span class="id">b</span> <span class="op">==</span> <span class="num">0</span> {
+        <span class="kw">return</span> <span class="ty">MathError</span>.<span class="id">DivByZero</span>
+    }
+    <span class="kw">return</span> <span class="id">a</span> <span class="op">/</span> <span class="id">b</span>
 }</code></pre>
                 <p>
                     <code>try expr</code> unwraps the success value from an
@@ -985,15 +1001,16 @@
                     enclosing function (which must itself return
                     <code>error U</code>).
                 </p>
-                <pre><code><span class="kw">fn</span> <span class="fn">process</span>(<span class="id">url</span>: <span class="ty">string</span>) <span class="op">-></span> <span class="kw">error</span> <span class="ty">int</span> {
-    <span class="kw">let</span> <span class="id">body</span> <span class="op">=</span> <span class="kw">try</span> <span class="fn">fetch</span>(<span class="id">url</span>)   <span class="cm">// body is string, not error string</span>
-    <span class="kw">return</span> <span class="num">200</span>
+                <pre><code><span class="kw">fn</span> <span class="fn">compute</span>(<span class="id">a</span>: <span class="ty">int</span>, <span class="id">b</span>: <span class="ty">int</span>, <span class="id">c</span>: <span class="ty">int</span>) <span class="op">-></span> <span class="kw">error</span> <span class="ty">int</span> {
+    <span class="kw">let</span> <span class="id">ab</span> <span class="op">=</span> <span class="kw">try</span> <span class="fn">divide</span>(<span class="id">a</span>, <span class="id">b</span>)   <span class="cm">// ab is int, not error int</span>
+    <span class="kw">return</span> <span class="kw">try</span> <span class="fn">divide</span>(<span class="id">ab</span>, <span class="id">c</span>)
 }</code></pre>
                 <p>
                     <code>must expr</code> also unwraps <code>error T</code>
                     to <code>T</code>, but traps (fatal runtime error) if the
                     value is an error. Use it when you're certain success is
-                    guaranteed.
+                    guaranteed. The trap message is the enum's
+                    <code>Name.Variant</code> plus its payload.
                 </p>
 
                 <h3>Type syntax rules</h3>
